@@ -781,3 +781,6 @@ body{font-family:var(--song)}
 .vclose{position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(246,196,69,.5);background:#2A2115;color:#F6C445;font-size:14px;cursor:pointer;z-index:2}
 .vclose:hover{background:#3A2C18}
 @media (max-width:900px){ .video-card{width:96vw;padding:8px} .video-info h3{font-size:17px} .video-info p{font-size:12px} }
+@media (max-width:900px){ .vclose{top:8px;right:8px} }
+.tface .frame{box-shadow:none}
+.tface *{animation:none !important}
