@@ -378,7 +378,7 @@ function turn(dir){
       var d = pendingTurn; pendingTurn = null;
       setTimeout(function(){ turn(d); }, 70);
     }
-  }, 980);
+  }, 1100);
 }
 function fadeTo(n){
   paperSound();
@@ -517,6 +517,7 @@ document.addEventListener('click', function(e){
     if(!src) return;
     var v = document.createElement('video');
     v.src = src; v.controls = true; v.autoplay = true; v.playsInline = true; v.preload = 'metadata';
+    v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.setAttribute('x5-playsinline','');
     var po = vf.getAttribute('data-poster'); if(po) v.poster = po;
     vf.innerHTML = ''; vf.appendChild(v); vf.classList.add('playing');
     v.play().catch(function(){});
