@@ -79,17 +79,15 @@
     <div class="brand"><b data-i18n="brand">Mr.Dentier 的相册</b><span>To pursue your light</span></div>
     <nav class="tools">
       <button data-view="contents" data-i18n="navContents">目录</button>
-      <button data-view="atlas" data-i18n="navAtlas">年表</button>
-      <button data-view="reel" data-i18n="navReel">放映室</button>
-      <button data-view="models" data-i18n="navModels">模型</button>
-      <button id="eggBtn"><span data-i18n="navEggs">彩蛋</span> <b id="eggCount">0</b>/9</button>
       <button class="langbtn" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
       <button id="soundBtn">声 开</button>
     </nav>
   </header>
 
   <div id="bookWrap">
-    <div class="book" id="book">
+    <div class="book-case" id="bookCase">
+      <i class="bc tl"></i><i class="bc tr"></i><i class="bc bl"></i><i class="bc br"></i>
+      <div class="book" id="book">
       <div class="spread" id="spread">
         <article class="page left" id="pageL"></article>
         <article class="page right" id="pageR"></article>
@@ -108,6 +106,7 @@
         <span class="ring" style="--y:87%"></span>
       </div>
       <div class="book-edge"></div>
+      </div>
     </div>
   </div>
 

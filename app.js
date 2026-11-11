@@ -239,7 +239,12 @@ function pageHTML(p){
     +   '</div>'
     + '</div>';
 }
+function stopVideos(root){
+  if(!root) return;
+  Array.prototype.forEach.call(root.querySelectorAll('video'), function(v){ try{ v.pause(); }catch(e){} });
+}
 function paint(pageEl, p, side){
+  stopVideos(pageEl);
   if(!p){ pageEl.className = 'page ' + side; pageEl.innerHTML = ''; pageEl.style.visibility = 'hidden'; return; }
   pageEl.style.visibility = '';
   pageEl.className = 'page ' + side + ' paper-' + p.paper;
@@ -343,6 +348,7 @@ function turn(dir){
     newL = P[idx - 2]; newR = P[idx - 1];
     frontP = oldL; backP = newR;
   }
+  stopVideos($('pageL')); stopVideos($('pageR')); stopVideos(turning);
   turning.dataset.busy = '1';
   turning.hidden = false;
   turning.className = 'turning' + (dir === 'prev' ? ' prev' : '');
@@ -361,6 +367,7 @@ function turn(dir){
     paperSound();
   });
   setTimeout(function(){
+    stopVideos(turning);
     turning.hidden = true;
     turning.className = 'turning';
     turning.style.visibility = '';
@@ -371,7 +378,7 @@ function turn(dir){
       var d = pendingTurn; pendingTurn = null;
       setTimeout(function(){ turn(d); }, 70);
     }
-  }, 760);
+  }, 980);
 }
 function fadeTo(n){
   paperSound();
@@ -410,8 +417,8 @@ function renderEggs(){
       + '</div>';
   }
   box.innerHTML = html;
-  $('eggCount').textContent = Object.keys(found).length;
-  $('eggHead').textContent = T(Object.keys(found).length + ' / 9 个。找到的会亮起来。', Object.keys(found).length + ' / 9 found. The found ones light up.');
+  var ec = $('eggCount'); if(ec) ec.textContent = Object.keys(found).length;
+  var eh = $('eggHead'); if(eh) eh.textContent = T(Object.keys(found).length + ' / 9 个。找到的会亮起来。', Object.keys(found).length + ' / 9 found. The found ones light up.');
 }
 function findEgg(id, msgZh, msgEn){
   var e = eggText(id);
@@ -504,16 +511,14 @@ $('toBack').addEventListener('click', function(e){ e.stopPropagation(); $('cover
 // 视频页：点开浮层播放
 document.addEventListener('click', function(e){
   var vf = e.target.closest('.video-frame');
-  if(vf){
+  if(vf && !vf.classList.contains('playing')){
     e.preventDefault(); e.stopPropagation();
     var src = vf.getAttribute('data-video');
     if(!src) return;
-    $('videoView').hidden = false;
-    var v = $('videoPlayer');
-    v.src = src;
+    var v = document.createElement('video');
+    v.src = src; v.controls = true; v.autoplay = true; v.playsInline = true; v.preload = 'metadata';
     var po = vf.getAttribute('data-poster'); if(po) v.poster = po;
-    $('videoTitle').textContent = vf.getAttribute('data-title') || '';
-    $('videoNote').textContent = vf.getAttribute('data-cap') || '';
+    vf.innerHTML = ''; vf.appendChild(v); vf.classList.add('playing');
     v.play().catch(function(){});
     return;
   }
@@ -676,6 +681,7 @@ function snapIn(dir){
 }
 $('bookWrap').addEventListener('touchstart', function(e){
   if(overlayOpen()) return;
+  if(e.target && e.target.closest && e.target.closest('video')) return;
   touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
   dragging = true; dragActive = false; dX = 0;
   dPage = $('pageR');
@@ -754,7 +760,7 @@ document.addEventListener('click', function(e){
 document.querySelectorAll('.tools [data-view]').forEach(function(b){
   b.addEventListener('click', function(){ openOverlay(b.getAttribute('data-view') + 'View'); });
 });
-$('eggBtn').addEventListener('click', function(){ openOverlay('eggView'); });
+var eggBtn = $('eggBtn'); if(eggBtn) eggBtn.addEventListener('click', function(){ openOverlay('eggView'); });
 $('soundBtn').addEventListener('click', toggleSound);
 $('prevBtn').addEventListener('click', prev);
 $('nextBtn').addEventListener('click', next);
