@@ -784,3 +784,5 @@ body{font-family:var(--song)}
 @media (max-width:900px){ .vclose{top:8px;right:8px} }
 .tface .frame{box-shadow:none}
 .tface *{animation:none !important}
+/* 页角 */.page.left .page-in::after{content:"";position:absolute;left:0;bottom:0;width:40px;height:40px;pointer-events:none;background:radial-gradient(circle at 0 100%, rgba(110,80,40,.16), transparent 72%);border-bottom-left-radius:2px}
+.page.right .page-in::after{content:"";position:absolute;right:0;bottom:0;width:40px;height:40px;pointer-events:none;background:radial-gradient(circle at 100% 100%, rgba(110,80,40,.16), transparent 72%);border-bottom-right-radius:2px}
