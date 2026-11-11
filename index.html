@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mr.Dentier 的相册 · A Photo Album</title>
+<meta name="description" content="To pursue your light, don't care other's eyes. 2025.10 — 2026.11。">
+<meta name="theme-color" content="#F6C445">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mr.Dentier 的相册">
+<meta property="og:description" content="To pursue your light, don't care other's eyes. 二十岁的一年。">
+<meta property="og:image" content="assets/photos/cover-art.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="book.css">
+</head>
+<body>
+<div id="desk"></div>
+
+<!-- ============ 封面 ============ -->
+<section id="coverScreen" hidden>
+  <div class="cover-wrap">
+    <div class="cover-book" id="coverBook">
+      <div class="cover-3d">
+        <div class="cover-face cover-front">
+          <button class="cover-chip" id="toBack" data-i18n="coverChip">翻到封底 ↺</button>
+          <div class="cover-art">
+            <img src="assets/photos/cover-art.jpg" alt="Mr.Dentier with a camera">
+            <div class="cover-kicker">PHOTO ALBUM · NO.001 · 2025—2026</div>
+            <div class="cover-foil"></div>
+            <div class="cover-foil-label"><span>Mr.Dentier</span></div>
+          </div>
+          <div class="cover-spine"><span>MR.DENTIER · A PHOTO ALBUM · 2025—2026</span></div>
+          <div class="cover-headband top"></div>
+          <div class="cover-headband bottom"></div>
+          <div class="cover-plate">
+            <h1 class="cover-title">Mr.Dentier<em data-i18n="coverSub">的相册</em></h1>
+            <div class="cover-rule"></div>
+            <p class="cover-motto">To pursue your light, don't care other's eyes.</p>
+            <div class="cover-meta"><span>2025.10 — 2026.11</span><b data-i18n="coverMeta">二十岁</b></div>
+            <div class="cover-seal" id="coverSeal" title="stamp">光</div>
+            <div class="cover-stamp" id="coverStamp" title="try me">2026.11.13</div>
+          </div>
+          <div class="cover-band">
+            <span>NINE VOLUMES · 383 PIECES · ONE COPY</span>
+            <b data-i18n="coverMeta">二十岁</b>
+          </div>
+        </div>
+        <div class="cover-face cover-back">
+          <button class="cover-chip" id="toFront" data-i18n="backChip">↺ 回到封面</button>
+          <div class="back-kicker" data-i18n="backKicker">COLOPHON · 装帧记</div>
+          <figure class="back-plate"><img src="assets/photos/p58a1d138.jpg" alt="A Poem in Blue"></figure>
+          <h3 data-i18n="backTitle">Mr.Dentier 的相册</h3>
+          <p class="back-motto">TO PURSUE YOUR LIGHT,<br>DON'T CARE OTHER'S EYES.</p>
+          <div class="cover-scale" id="coverScale"></div>
+          <div class="back-scale-label" data-i18n="backScale">二十年 · 二〇二六</div>
+          <div class="back-colophon">
+            <p data-i18n="backCol1">卷一 至 卷九 · 383 件 · 已装订 34 页</p>
+            <p data-i18n="backCol2">摄影 Mr.Dentier　编者 鲸月</p>
+            <p data-i18n="backCol3">只此一本 · 2026.11.13</p>
+          </div>
+          <p class="back-note" data-i18n-html="backNote">一台手机，一台 Insta360，<br>和很多次抬头。</p>
+        </div>
+      </div>
+      <div class="cover-ribbon"></div>
+      <div class="cover-pages"></div>
+    </div>
+    <p class="cover-hint" data-i18n="coverHint">轻点封面，翻开这一年</p>
+    <p class="cover-tiny">公开版 v1.1 · 255 页 / 去人物 / 微信可看</p>
+    <button class="langbtn cover-lang" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
+  </div>
+</section>
+
+<!-- ============ 书 ============ -->
+<main id="bookScreen" hidden>
+  <header id="top">
+    <div class="brand"><b data-i18n="brand">Mr.Dentier 的相册</b><span>To pursue your light</span></div>
+    <nav class="tools">
+      <button data-view="contents" data-i18n="navContents">目录</button>
+      <button data-view="atlas" data-i18n="navAtlas">年表</button>
+      <button data-view="reel" data-i18n="navReel">放映室</button>
+      <button data-view="models" data-i18n="navModels">模型</button>
+      <button id="eggBtn"><span data-i18n="navEggs">彩蛋</span> <b id="eggCount">0</b>/9</button>
+      <button class="langbtn" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
+      <button id="soundBtn">声 开</button>
+    </nav>
+  </header>
+
+  <div id="bookWrap">
+    <div class="book" id="book">
+      <div class="spread" id="spread">
+        <article class="page left" id="pageL"></article>
+        <article class="page right" id="pageR"></article>
+      </div>
+      <div class="turning" id="turning" hidden>
+        <div class="tsheet">
+          <div class="tface front" id="tFront"></div>
+          <div class="tface back" id="tBack"></div>
+        </div>
+      </div>
+      <div class="binder" aria-hidden="true">
+        <span class="ring" style="--y:7%"></span>
+        <span class="ring" style="--y:27%"></span>
+        <span class="ring" style="--y:47%"></span>
+        <span class="ring" style="--y:67%"></span>
+        <span class="ring" style="--y:87%"></span>
+      </div>
+      <div class="book-edge"></div>
+    </div>
+  </div>
+
+  <footer id="bottom">
+    <button id="prevBtn" class="navbtn" data-i18n="prev">← 上一页</button>
+    <div class="pager"><span id="pagerText">第 1 / 17 页</span><span class="pager-hint" data-i18n="pagerHint">翻页 · 长按照片有背面</span></div>
+    <button id="nextBtn" class="navbtn" data-i18n="next">下一页 →</button>
+  </footer>
+</main>
+
+<!-- ============ 浮层：目录 ============ -->
+<div class="overlay" id="contentsView" hidden>
+  <div class="ov-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="contentsTitle">目录</h2><p data-i18n="contentsSub">九卷 · 附卷 · 全本 383 件，已装订 34 页</p></div>
+    <div id="volumeList" class="vol-list"></div>
+    <div class="ov-foot">
+      <button class="linkbtn" id="openNames" data-i18n="openNames">翻到附卷 · 名字 →</button>
+      <span class="mono" id="bindNote">装订进度 34 / 383</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 浮层：年表 ============ -->
+<div class="overlay" id="atlasView" hidden>
+  <div class="ov-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="atlasTitle">年表</h2><p data-i18n="atlasSub">每一张照片是一颗星：横轴是日期，纵轴是当时的天色</p></div>
+    <div class="atlas-stats" id="atlasStats"></div>
+    <div class="atlas-wrap"><canvas id="atlasCanvas"></canvas><div id="atlasTip" class="atlas-tip"></div></div>
+    <div class="atlas-legend" id="atlasLegend"></div>
+    <p class="atlas-note" data-i18n="atlasNote">没有日期的星都落在最后一条线上。点一颗已经装订的星，可以翻到那一页。</p>
+  </div>
+</div>
+
+<!-- ============ 浮层：放映室 ============ -->
+<div class="overlay" id="reelView" hidden>
+  <div class="ov-card wide">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="reelTitle">放映室</h2><p data-i18n="reelSub">37 段动态 · 六个片单 · 原型接入 3 段</p></div>
+    <div class="reel-grid">
+      <div class="screen-side">
+        <div class="screen-frame">
+          <video id="reelVideo" controls playsinline preload="metadata"></video>
+          <div class="screen-glow"></div>
+        </div>
+        <div class="clapper">
+          <div class="clap-top"><b id="clapTitle">Night Shoot</b><span id="clapBadge">片头</span></div>
+          <div class="clap-body">
+            <span><span data-i18n="clapAlbum">片单</span> <b id="clapAlbum">影石</b></span>
+            <span><span data-i18n="clapDur">时长</span> <b id="clapDur">00:03</b></span>
+            <span><span data-i18n="clapSize">体积</span> <b id="clapSize">22.5 MB</b></span>
+            <span><span data-i18n="clapDate">日期</span> <b id="clapDate">2026.09.09</b></span>
+          </div>
+          <p class="clap-note" id="clapNote">—</p>
+        </div>
+      </div>
+      <aside class="playlist" id="playlist"></aside>
+    </div>
+    <p class="reel-tip" data-i18n="reelTip">这一段看完，别急着走——片尾有一行字。</p>
+  </div>
+</div>
+
+<!-- ============ 浮层：模型 ============ -->
+<div class="overlay" id="videoView" hidden>
+  <div class="video-card">
+    <button class="vclose" data-close aria-label="close">✕</button>
+    <video id="videoPlayer" controls playsinline preload="metadata"></video>
+    <div class="video-info"><h3 id="videoTitle"></h3><p id="videoNote"></p></div>
+  </div>
+</div>
+<div class="overlay" id="modelsView" hidden>
+  <div class="ov-card wide">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="modelsTitle">模型</h2><p data-i18n="modelsSub">同一个内核，四种看法。原型先把它们都摆出来给你挑。</p></div>
+    <div class="model-grid"></div>
+    <div class="model-foot"></div>
+  </div>
+</div>
+
+<!-- ============ 浮层：彩蛋 ============ -->
+<div class="overlay" id="eggView" hidden>
+  <div class="ov-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="eggTitle">彩蛋</h2><p id="eggHead">0 / 9 个。找到的会亮起来。</p></div>
+    <div id="eggList" class="egg-list"></div>
+    <p class="atlas-note" data-i18n="eggNote">全部找到之后，书脊会响一声——那是鲸鱼翻身的声音。</p>
+  </div>
+</div>
+
+<!-- ============ 浮层：附卷·名字 ============ -->
+<div class="overlay" id="namesView" hidden>
+  <div class="ov-card parchment">
+    <button class="ov-close" data-close>×</button>
+    <div class="ov-head"><h2 data-i18n="namesTitle">附卷 · 名字</h2><p id="namesNote">383 个文件，335 个已经有名字，48 个还在等</p></div>
+    <div class="names-tools"><input id="namesSearch" data-i18n-ph="namesPH" placeholder="找一找你的名字…" autocomplete="off"><span class="mono" id="namesCount"></span></div>
+    <div id="namesList" class="names-list"></div>
+  </div>
+</div>
+
+<!-- ============ 隐藏信 ============ -->
+<div class="overlay letter-ov" id="secret" hidden>
+  <div class="letter-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="letter-paper"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="whale" hidden>
+  <svg viewBox="0 0 240 90" aria-hidden="true">
+    <path d="M6 52 C 40 22, 96 14, 142 26 C 172 34, 196 46, 212 58 C 190 62, 172 66, 150 68 C 120 71, 86 68, 60 62 C 40 57, 20 55, 6 52 Z"></path>
+    <path d="M206 58 C 224 46, 236 38, 238 26 C 226 40, 216 50, 204 56 Z"></path>
+    <circle cx="60" cy="46" r="2.4" class="eye"></circle>
+  </svg>
+  <span>JINGYUE · 鲸月</span>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
