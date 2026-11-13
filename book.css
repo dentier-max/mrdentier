@@ -1186,3 +1186,4 @@ html.tablet-land .navbtn{min-width:150px;height:48px;font-size:15px}
   #musicView .music-buttons{gap:12px;margin-top:4px}
   #musicView .ov-done{margin-top:8px;padding:7px 20px}
 }
+.face.front picture,.video-frame picture{display:contents}

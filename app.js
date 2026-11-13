@@ -129,6 +129,7 @@ P.sort(function(a,b){
   if(rb < 0) rb = 99;
   return ra - rb;
 });
+for(var _i = 0; _i < P.length; _i++){ P[_i].n = _i + 1; }
 
 var VOL_NAMES = {
   '卷一 · 校园':'Vol. I · Campus', '卷一 · 校园 · 动漫':'Vol. I · Campus · Anime',
@@ -213,6 +214,15 @@ function volumeOf(dir){
 }
 function topDir(dir){ return (dir || '').split('/')[0]; }
 
+function imgTag(src, alt, loading){
+  var base = String(src || '').replace(/\.jpg$/i, '');
+  var s = base + '-s.webp', l = base + '-l.webp';
+  return '<picture>'
+    + '<source media="(max-width:600px)" srcset="' + s + '" type="image/webp">'
+    + '<source srcset="' + l + '" type="image/webp">'
+    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async">'
+    + '</picture>';
+}
 /* ---------------- 纸页 ---------------- */
 function extraLine(p){
   var top = (p.dir || '').split('/')[0];
@@ -277,7 +287,7 @@ function pageHTML(p){
       +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
       +   '<figure class="frame fr-film ' + orient + '" data-frame>'
       +     '<div class="video-frame" data-video="' + p.file + '" data-poster="' + (p.poster || '') + '" data-title="' + esc(title) + '" data-cap="' + esc(cap) + '">'
-      +       '<img src="' + (p.poster || p.file) + '" alt="" loading="lazy">'
+      +       imgTag((p.poster || p.file), '', 'lazy')
       +       '<span class="play">▶</span><span class="vtime">' + dur + '</span>'
       +     '</div>'
       +   '</figure>'
@@ -295,7 +305,7 @@ function pageHTML(p){
     +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
     +   '<figure class="frame fr-' + p.frame + orient + '" data-frame>'
     +     '<div class="frame-3d">'
-    +       '<div class="face front"><img src="' + p.file + '" alt="' + esc(title) + '" loading="lazy">' + fx + dot + '</div>'
+    +       '<div class="face front">' + imgTag(p.file, title, 'lazy') + fx + dot + '</div>'
     +       '<div class="face back"><span>' + esc(back) + '</span></div>'
     +     '</div>'
     +   '</figure>'
@@ -337,22 +347,21 @@ function render(){
   $('nextBtn').disabled = mode === 'single' ? idx >= P.length - 1 : idx + 2 >= P.length;
   preloadAround();
 }
+function pageImgURL(p, small){
+  var src = p.kind === 'video' ? (p.poster || p.file) : p.file;
+  if(!/\.jpg$/i.test(src)) return src;
+  return src.replace(/\.jpg$/i, '') + (small ? '-s.webp' : '-l.webp');
+}
 function preloadAround(){
-  for(var d = 0; d < 8; d++){
+  var small = window.matchMedia && window.matchMedia('(max-width:600px)').matches;
+  var ahead = mode === 'single' ? 2 : 3;
+  for(var d = 1; d <= ahead; d++){
     var q = P[idx + d];
-    if(q && !q._pre){
-      q._pre = 1;
-      var im = new Image();
-      im.src = q.kind === 'video' ? (q.poster || q.file) : q.file;
-    }
+    if(q && !q._pre){ q._pre = 1; var im = new Image(); im.src = pageImgURL(q, small); }
   }
-  for(var b = Math.max(0, idx - 4); b < idx; b++){
-    var r = P[b];
-    if(r && !r._pre){
-      r._pre = 1;
-      var im2 = new Image();
-      im2.src = r.kind === 'video' ? (r.poster || r.file) : r.file;
-    }
+  if(idx > 0){
+    var b = P[idx - 1];
+    if(b && !b._pre){ b._pre = 1; var im2 = new Image(); im2.src = pageImgURL(b, small); }
   }
 }
 function waitFaces(box, cb){
