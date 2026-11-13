@@ -7,16 +7,40 @@ var LANG = 'zh';
 try{ if(localStorage.getItem('album-lang') === 'en') LANG = 'en'; }catch(e){}
 var soundOn = true;
 var idx = 0;
-var mode = window.innerWidth <= 900 ? 'single' : 'spread';
+var mode = calcMode();
 var found = {};
 var idleTimer = null;
 var lastPno = { el: null, n: 0, t: 0 };
+function isTabletLayout(){
+  var w = window.innerWidth, h = window.innerHeight;
+  var ua = navigator.userAgent || '';
+  var touch = (navigator.maxTouchPoints || 0) > 0;
+  return (/Android/i.test(ua) || touch) && Math.min(w,h) >= 500;
+}
+function calcMode(){
+  if(isTabletLayout()) return window.innerWidth > window.innerHeight ? 'spread' : 'single';
+  return window.innerWidth <= 900 ? 'single' : 'spread';
+}
+function syncLayout(){
+  var t = isTabletLayout();
+  var root = document.documentElement;
+  root.classList.toggle('tablet', t);
+  root.classList.toggle('tablet-land', t && window.innerWidth > window.innerHeight);
+  root.classList.toggle('tablet-port', t && window.innerWidth <= window.innerHeight);
+  var m = calcMode();
+  if(m !== mode){
+    mode = m;
+    $('book').classList.toggle('single', mode === 'single');
+    if(mode === 'spread' && idx % 2 === 1) idx = idx - 1;
+    render();
+  }
+}
 
 function T(zh, en){ return LANG === 'en' ? en : zh; }
 
 var STR = {
   zh: {
-    brand:'Mr.Dentier 的相册', subBrand:'To pursue your light', navContents:'目录', navAtlas:'年表', navReel:'放映室', navModels:'模型', navEggs:'彩蛋',
+    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'目录', navMusic:'音乐', navAtlas:'年表', navReel:'放映室', navModels:'模型', navEggs:'彩蛋',
     prev:'← 上一页', next:'下一页 →', pagerHint:'翻页 · 长按照片有背面',
     soundOn:'声 开', soundOff:'声 关',
     coverChip:'翻到封底 ↺', coverSub:'的相册', coverMeta:'二十岁', coverHint:'轻点封面，翻开这一年',
@@ -35,7 +59,7 @@ var STR = {
     letterLabel:'2026.11.13 · 海上'
   },
   en: {
-    brand:'Mr.Dentier · A Photo Album', subBrand:'To pursue your light', navContents:'Contents', navAtlas:'Atlas', navReel:'Reel', navModels:'Models', navEggs:'Eggs',
+    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'Contents', navMusic:'Music', navAtlas:'Atlas', navReel:'Reel', navModels:'Models', navEggs:'Eggs',
     prev:'← Previous', next:'Next →', pagerHint:'Turn pages · hold a photo to see its back',
     soundOn:'Sound on', soundOff:'Sound off',
     coverChip:'Back cover ↺', coverSub:'A Photo Album', coverMeta:'Twenty', coverHint:'Tap the cover to open the year',
@@ -95,6 +119,16 @@ var VOLS = [
   { key:'精美', name:'卷八 · 网', en:'Vol. VIII · Web', note:'十二张从网上捡来的好看', noteEn:'Twelve pretty things found online' },
   { key:'Life', name:'卷九 · 动态', en:'Vol. IX · Motion', note:'三十七段视频，六个片单', noteEn:'37 clips, six reels' }
 ];
+
+/* 目录是「卷」；页面也按卷排，点目录才能落到准确的那一卷 */
+var VOL_KEY_ORDER = ['校园','意义','影石','神图','生活','抽象','个性','精美','Life'];
+P.sort(function(a,b){
+  var ra = VOL_KEY_ORDER.indexOf(topDir(a.dir));
+  var rb = VOL_KEY_ORDER.indexOf(topDir(b.dir));
+  if(ra < 0) ra = 99;
+  if(rb < 0) rb = 99;
+  return ra - rb;
+});
 
 var VOL_NAMES = {
   '卷一 · 校园':'Vol. I · Campus', '卷一 · 校园 · 动漫':'Vol. I · Campus · Anime',
@@ -328,12 +362,56 @@ function paperSound(){
       s.connect(hp); hp.connect(bp); bp.connect(g); g.connect(c.destination);
       s.start(t0 + delay);
     }
-    rustle(0, 0.42, 2600, 0.055);
-    rustle(0.13, 0.26, 4200, 0.032);
+    rustle(0, 0.55, 2300, 0.28);
+    rustle(0.12, 0.30, 4100, 0.14);
+    // 纸页的“身体”：一口气压下去的低频
+    var osc = c.createOscillator(), og = c.createGain();
+    osc.frequency.setValueAtTime(150, t0);
+    osc.frequency.exponentialRampToValueAtTime(72, t0 + 0.18);
+    og.gain.setValueAtTime(0.0001, t0);
+    og.gain.exponentialRampToValueAtTime(0.055, t0 + 0.015);
+    og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.20);
+    osc.connect(og); og.connect(c.destination); osc.start(t0); osc.stop(t0 + 0.22);
   }catch(e){}
 }
 
 var pendingTurn = null;
+var spreadTurning = false;
+function turnTablet2D(dir){
+  if(spreadTurning) return;
+  var step = 2;
+  var ni = dir === 'next' ? idx + step : idx - step;
+  if(ni < 0 || (dir === 'next' && idx + step >= P.length)) return;
+  if(dir === 'prev' && ni + 1 >= P.length) return;
+  var spread = $('spread');
+  if(!spread) return;
+  stopVideos($('pageL')); stopVideos($('pageR')); stopVideos(spread);
+  var ghost = spread.cloneNode(true);
+  ghost.removeAttribute('id');
+  Array.prototype.forEach.call(ghost.querySelectorAll('[id]'), function(x){ x.removeAttribute('id'); });
+  ghost.classList.add('spread-ghost');
+  ghost.style.position = 'absolute';
+  ghost.style.inset = '0';
+  ghost.style.width = '100%';
+  ghost.style.height = '100%';
+  ghost.style.zIndex = '8';
+  ghost.style.pointerEvents = 'none';
+  ghost.style.opacity = '1';
+  ghost.style.transform = 'translateX(0)';
+  spread.parentNode.appendChild(ghost);
+  spreadTurning = true;
+  idx = ni;
+  render();
+  paperSound();
+  void ghost.offsetWidth;
+  ghost.style.transition = 'transform .32s cubic-bezier(.2,.7,.2,1), opacity .32s ease-out';
+  ghost.style.transform = 'translateX(' + (dir === 'next' ? -14 : 14) + '%)';
+  ghost.style.opacity = '0';
+  setTimeout(function(){
+    if(ghost.parentNode) ghost.parentNode.removeChild(ghost);
+    spreadTurning = false;
+  }, 360);
+}
 function turn(dir){
   var turning = $('turning');
   if(turning.dataset.busy === '1'){ pendingTurn = dir; return; }
@@ -380,12 +458,51 @@ function turn(dir){
     }
   }, 1100);
 }
-function fadeTo(n){
-  paperSound();
-  var pr = $('pageR');
-  pr.style.opacity = '0';
-  setTimeout(function(){ idx = n; render(); pr.style.opacity = '1'; }, 180);
+var underIdx = -1, pageAnimating = false;
+function resetPage(){
+  var pr = $('pageR'); if(!pr) return;
+  pr.style.transition = ''; pr.style.transform = ''; pr.style.opacity = '';
+  pr.style.willChange = ''; pr.style.zIndex = '';
 }
+function hideUnder(){
+  var u = $('pageUnder'), pr = $('pageR');
+  underIdx = -1;
+  if(u){ u.className = 'page page-under'; u.innerHTML = ''; u.style.visibility = 'hidden'; }
+  if(pr) pr.style.zIndex = '';
+}
+function showUnder(n){
+  var u = $('pageUnder'), p = P[n], pr = $('pageR');
+  if(!u || !p){ hideUnder(); return; }
+  if(underIdx === n && u.classList.contains('live')) return;
+  underIdx = n;
+  u.className = 'page right page-under live paper-' + p.paper;
+  u.innerHTML = pageHTML(p);
+  u.style.visibility = 'visible';
+  u.style.zIndex = '0';
+  if(pr) pr.style.zIndex = '2';
+}
+function animateTurn(target, dir){
+  if(target < 0 || target >= P.length || pageAnimating) return;
+  var pr = $('pageR');
+  showUnder(target);
+  pageAnimating = true;
+  pr.style.transition = 'transform .24s cubic-bezier(.2,.7,.2,1)';
+  pr.style.transform = 'translateX(' + (dir * 108) + '%)';
+  pr.style.willChange = 'transform';
+  paperSound();
+  setTimeout(function(){
+    idx = target;
+    render();
+    resetPage();
+    hideUnder();
+    pageAnimating = false;
+  }, 250);
+}
+function slideTo(n){
+  if(n < 0 || n >= P.length || pageAnimating) return;
+  animateTurn(n, n < idx ? 1 : -1);
+}
+function fadeTo(n){ slideTo(n); }
 function next(){
   if(mode === 'single'){ if(idx >= P.length - 1) return; fadeTo(idx + 1); }
   else turn('next');
@@ -681,49 +798,52 @@ function snapIn(dir){
   dPage.style.transform = '';
 }
 $('bookWrap').addEventListener('touchstart', function(e){
-  if(overlayOpen()) return;
+  if(overlayOpen() || pageAnimating) return;
   if(e.target && e.target.closest && e.target.closest('video')) return;
   touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
   dragging = true; dragActive = false; dX = 0;
   dPage = $('pageR');
-  if(mode === 'single' && dPage) dPage.style.transition = 'none';
+  hideUnder();
+  if(mode === 'single' && dPage){ resetPage(); dPage.style.transition = 'none'; }
+  if(mode === 'spread' && $('book')){ $('book').style.transition = 'none'; $('book').style.transform = ''; }
 }, { passive: true });
 $('bookWrap').addEventListener('touchmove', function(e){
-  if(!dragging) return;
+  if(!dragging || pageAnimating) return;
   var dx = e.touches[0].clientX - touchX;
   var dy = e.touches[0].clientY - touchY;
   if(!dragActive){
     if(Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.1) dragActive = true;
-    else if(Math.abs(dy) > 16){ dragging = false; return; }
+    else if(Math.abs(dy) > 16){ dragging = false; hideUnder(); return; }
     else return;
   }
   dX = dx;
   if(mode === 'single' && dPage){
     e.preventDefault();
     var r = Math.max(-170, Math.min(170, dx * 0.72));
-    dPage.style.transform = 'translateX(' + r + 'px) rotate(' + (r * 0.012) + 'deg)';
-    dPage.style.boxShadow = '0 22px 44px rgba(120,90,40,' + Math.min(0.32, Math.abs(r) / 560) + ')';
+    dPage.style.transform = 'translateX(' + r + 'px)';
+    dPage.style.willChange = 'transform';
+    var target = idx + (dx < 0 ? 1 : -1);
+    if(dx !== 0 && target >= 0 && target < P.length) showUnder(target);
+    else hideUnder();
+  } else if(mode === 'spread'){
+    e.preventDefault();
   }
 }, { passive: false });
 $('bookWrap').addEventListener('touchend', function(e){
   if(!dragging) return;
   dragging = false;
-  var dir = dX < 0 ? -1 : 1;
+  if(pageAnimating){ dX = 0; dragActive = false; return; }
+  if(mode === 'spread'){
+    if(dragActive && Math.abs(dX) > 55){ turn(dX < 0 ? 'next' : 'prev'); }
+    dX = 0; dragActive = false; return;
+  }
   if(mode === 'single' && dragActive && Math.abs(dX) > 55){
-    var canGo = dir < 0 ? idx < P.length - 1 : idx > 0;
-    if(!canGo){ snapBack(); dX = 0; dragActive = false; return; }
-    dPage.style.transition = 'transform .26s ease-in, opacity .26s ease-in';
-    dPage.style.transform = 'translateX(' + (dir * 112) + '%) rotate(' + (dir * 3) + 'deg)';
-    dPage.style.opacity = '0';
-    setTimeout(function(){
-      dPage.style.opacity = '';
-      idx += dir < 0 ? 1 : -1;
-      render();
-      snapIn(dir);
-      paperSound();
-    }, 210);
+    var dir = dX < 0 ? 1 : -1;
+    var target = idx + dir;
+    if(target < 0 || target >= P.length){ snapBack(); hideUnder(); }
+    else { animateTurn(target, -dir); }
   } else if(mode === 'single' && dragActive){
-    snapBack();
+    snapBack(); hideUnder();
   } else if(!dragActive){
     var dx2 = e.changedTouches[0].clientX - touchX;
     if(Math.abs(dx2) > 60){ if(dx2 < 0) next(); else prev(); }
@@ -747,7 +867,7 @@ function openOverlay(id){
   if(id === 'contentsView'){ buildVolumes(); }
 }
 function closeAll(silent){
-  ['contentsView','atlasView','reelView','modelsView','eggView','namesView','secret'].forEach(function(id){
+  ['contentsView','atlasView','reelView','modelsView','eggView','namesView','musicView','addView','addedView','letterView','secret'].forEach(function(id){
     var v = $(id); if(v) v.hidden = true;
   });
   openView = null;
@@ -1076,7 +1196,7 @@ function applyStatic(){
     if(STR[LANG][k] != null) el.placeholder = STR[LANG][k];
   });
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
-  document.title = LANG === 'en' ? 'Mr.Dentier — A Photo Album' : 'Mr.Dentier 的相册｜二十岁的一年';
+  document.title = LANG === 'en' ? 'Mr.Dentier' : 'Mr.Dentier｜二十岁的一年';
   $('soundBtn').textContent = soundOn ? t('soundOn') : t('soundOff');
   document.querySelectorAll('.langbtn').forEach(function(b){ b.classList.toggle('en-on', LANG === 'en'); });
   // 数据驱动的副标题
@@ -1186,31 +1306,179 @@ function addOne(db, file){
     }catch(e){ resolve(); }
   });
 }
+var TRACKS = [
+  { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
+  { title:'忘记时间', file:'music/02-wangjishijian.mp3', dur:'4:32' },
+  { title:'偏爱', file:'music/03-pianai.mp3', dur:'3:33' },
+  { title:'默', file:'music/04-mo.mp3', dur:'5:26' },
+  { title:'此生不换', file:'music/05-cishibuhuan.mp3', dur:'4:26' }
+];
+var musicAudio = null, musicIdx = 0, musicStarted = false;
+function fmtTime(s){
+  if(!isFinite(s) || s <= 0) return '0:00';
+  s = Math.floor(s); var m = Math.floor(s / 60), ss = s % 60;
+  return m + ':' + (ss < 10 ? '0' : '') + ss;
+}
+function buildTrackList(){
+  var box = $('trackList'); if(!box) return;
+  var html = '';
+  TRACKS.forEach(function(t, i){
+    html += '<div class="track-row" data-track="' + i + '">'
+      + '<span class="tn">' + (i < 9 ? '0' : '') + (i + 1) + '</span>'
+      + '<span class="tt">' + esc(t.title) + '</span>'
+      + '<span class="td">' + t.dur + '</span></div>';
+  });
+  box.innerHTML = html;
+  Array.prototype.forEach.call(box.querySelectorAll('[data-track]'), function(row){
+    row.addEventListener('click', function(){
+      loadTrack(parseInt(row.getAttribute('data-track'), 10), true);
+    });
+  });
+}
+function updateMusicUI(){
+  var t = TRACKS[musicIdx] || TRACKS[0];
+  if($('trackNow')) $('trackNow').textContent = t.title;
+  if($('trackArtist')) $('trackArtist').textContent = musicStarted ? 'Mr.Dentier · 2026' : '点击播放';
+  var list = $('trackList');
+  if(list) Array.prototype.forEach.call(list.querySelectorAll('[data-track]'), function(row){
+    row.classList.toggle('active', parseInt(row.getAttribute('data-track'), 10) === musicIdx);
+  });
+  var lbl = document.querySelector('#musicBtn .mt-label');
+  if(lbl) lbl.textContent = musicStarted ? t.title : T('音乐','Music');
+  if($('musicPlay')) $('musicPlay').textContent = (musicAudio && !musicAudio.paused) ? '❚❚' : '▶';
+  if($('vinyl')) $('vinyl').classList.toggle('playing', !!(musicAudio && !musicAudio.paused));
+  if($('musicBtn')) $('musicBtn').classList.toggle('playing', !!(musicAudio && !musicAudio.paused));
+}
+function loadTrack(i, play){
+  if(!musicAudio || !TRACKS.length) return;
+  musicIdx = (i + TRACKS.length) % TRACKS.length;
+  musicStarted = true;
+  musicAudio.src = TRACKS[musicIdx].file;
+  musicAudio.load();
+  updateMusicUI();
+  if(play){ musicAudio.play().catch(function(){}); }
+}
+function setupMusic(){
+  musicAudio = $('musicAudio');
+  if(!musicAudio || !TRACKS.length) return;
+  buildTrackList();
+  updateMusicUI();
+  $('musicBtn').addEventListener('click', function(){
+    openOverlay('musicView');
+    if(!musicStarted) loadTrack(0, true);
+  });
+  $('musicPlay').addEventListener('click', function(){
+    if(!musicStarted){ loadTrack(0, true); return; }
+    if(musicAudio.paused) musicAudio.play().catch(function(){}); else musicAudio.pause();
+  });
+  $('musicPrev').addEventListener('click', function(){ loadTrack(musicIdx - 1, true); });
+  $('musicNext').addEventListener('click', function(){ loadTrack(musicIdx + 1, true); });
+  $('musicSeek').addEventListener('input', function(){
+    if(musicAudio.duration) musicAudio.currentTime = (this.value / 1000) * musicAudio.duration;
+  });
+  musicAudio.addEventListener('timeupdate', function(){
+    if($('musicTime')) $('musicTime').textContent = fmtTime(musicAudio.currentTime) + ' / ' + fmtTime(musicAudio.duration);
+    if($('musicSeek') && musicAudio.duration) $('musicSeek').value = Math.round(musicAudio.currentTime / musicAudio.duration * 1000);
+  });
+  musicAudio.addEventListener('loadedmetadata', function(){ updateMusicUI(); });
+  musicAudio.addEventListener('play', updateMusicUI);
+  musicAudio.addEventListener('pause', updateMusicUI);
+  musicAudio.addEventListener('ended', function(){ loadTrack(musicIdx + 1, true); });
+  document.addEventListener('play', function(e){
+    if(e.target && e.target.tagName === 'VIDEO' && musicAudio && !musicAudio.paused) musicAudio.pause();
+  }, true);
+  document.addEventListener('pointerdown', function unlockMusicOnce(){
+    if(musicAudio && musicStarted && musicAudio.paused){ musicAudio.play().catch(function(){}); }
+  }, { once: true });
+  // 进入 App 就播《主角》
+  if(D.mode !== 'public') loadTrack(0, true);
+}
+function shakeAddTarget(start){
+  setTimeout(function(){
+    var pages = document.querySelectorAll('#book .page');
+    Array.prototype.forEach.call(pages, function(p){ if(p && p.innerHTML) p.classList.add('add-flash'); });
+    setTimeout(function(){ Array.prototype.forEach.call(pages, function(p){ p.classList.remove('add-flash'); }); }, 900);
+  }, 60);
+}
+function handlePhotoFiles(files){
+  if(!files || !files.length) return;
+  files = Array.prototype.slice.call(files);
+  var start = P.length;
+  openAddDB().then(function(db){
+    addDB = db; var chain = Promise.resolve();
+    files.forEach(function(f){ chain = chain.then(function(){ return addOne(db, f); }); });
+    return chain;
+  }).then(function(){
+    if(P.length > start){
+      var target = start;
+      idx = mode === 'single' ? target : target - (target % 2);
+      render();
+      shakeAddTarget(target);
+      var first = P[start];
+      if(first && $('addedImg')){
+        $('addedImg').src = first.file;
+        if($('addedMeta')) $('addedMeta').textContent = T('第 ' + (start + 1) + ' 页 · 本次 +' + files.length + ' 张', 'Page ' + (start + 1) + ' · +' + files.length + ' new');
+        openOverlay('addedView');
+      } else {
+        toast(T('加好了 ' + files.length + ' 张。', 'Added ' + files.length + ' photo(s).'));
+      }
+    } else {
+      render();
+      toast(T('没有加到照片。', 'No photo was added.'));
+    }
+  }).catch(function(){ toast(T('这台浏览器不支持本地存照片。','This browser cannot store photos locally.')); });
+}
 function setupAddPhotos(){
   if(!D.canAdd) return;
   var tools = document.querySelector('#top .tools');
   if(!tools) return;
   var btn = document.createElement('button');
-  btn.id = 'addBtn'; btn.textContent = '＋'; btn.title = T('添加照片','Add photos');
+  btn.id = 'addBtn';
+  btn.innerHTML = '＋<span>照片</span>';
+  btn.title = T('添加照片','Add photos');
   tools.insertBefore(btn, $('soundBtn'));
   var inp = document.createElement('input');
   inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.style.display = 'none';
   document.body.appendChild(inp);
-  btn.addEventListener('click', function(){ inp.click(); });
+  btn.addEventListener('click', function(){ openOverlay('addView'); });
+  var pick = $('pickPhotos');
+  if(pick) pick.addEventListener('click', function(){ inp.click(); });
+  if($('addedGoto')) $('addedGoto').addEventListener('click', function(){ closeAll(); });
   inp.addEventListener('change', function(){
     if(!inp.files || !inp.files.length) return;
     var files = Array.prototype.slice.call(inp.files);
     inp.value = '';
-    openAddDB().then(function(db){
-      addDB = db; var chain = Promise.resolve();
-      files.forEach(function(f){ chain = chain.then(function(){ return addOne(db, f); }); });
-      return chain.then(function(){ render(); toast(T('加好了 ' + files.length + ' 张。','Added ' + files.length + ' photo(s).')); });
-    }).catch(function(){ toast(T('这台浏览器不支持本地存照片。','This browser cannot store photos locally.')); });
+    handlePhotoFiles(files);
   });
-  // 读取上次添加的
+  var dz = $('dropZone');
+  if(dz){
+    ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); }); });
+    ['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); }); });
+    dz.addEventListener('drop', function(e){
+      if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) handlePhotoFiles(e.dataTransfer.files);
+    });
+  }
   openAddDB().then(function(db){ addDB = db; return idbAll(db); }).then(function(recs){
     if(recs && recs.length){ recs.forEach(function(r){ appendCustomPage(r); }); render(); }
   }).catch(function(){});
+}
+function setupLetter(){
+  if(!$('letterView')) return;
+  var stamp = $('coverStamp');
+  if(!stamp) return;
+  stamp.style.userSelect = 'none';
+  stamp.style.touchAction = 'none';
+  var timer = null;
+  function cancel(){ if(timer){ clearTimeout(timer); timer = null; } }
+  stamp.addEventListener('pointerdown', function(e){
+    e.preventDefault(); e.stopPropagation();
+    cancel();
+    timer = setTimeout(function(){ timer = null; openOverlay('letterView'); }, 1100);
+  });
+  ['pointerup','pointerleave','pointercancel','pointerout'].forEach(function(ev){
+    stamp.addEventListener(ev, cancel);
+  });
+  stamp.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 }
 function setupMode(){
   if(D.mode === 'public'){
@@ -1234,18 +1502,15 @@ buildPlaylist();
 renderEggs();
 setupMode();
 setupAddPhotos();
+setupMusic();
+setupLetter();
 resetIdle();
 $('coverScreen').hidden = false;
 $('book').classList.toggle('single', mode === 'single');
+syncLayout();
 window.addEventListener('hashchange', gotoHash);
 window.addEventListener('resize', function(){
-  var m = window.innerWidth <= 900 ? 'single' : 'spread';
-  if(m !== mode){
-    mode = m;
-    $('book').classList.toggle('single', mode === 'single');
-    if(mode === 'spread' && idx % 2 === 1) idx = idx - 1;
-    render();
-  }
+  syncLayout();
   if(openView === 'atlasView') drawAtlas();
 });
 })();

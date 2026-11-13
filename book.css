@@ -827,14 +827,299 @@ body{font-family:var(--song)}
 .video-frame.playing .play,.video-frame.playing .vtime{display:none}
 /* 翻页：向下压过去 */
 @keyframes turnNext{
-  0%{transform:rotateY(0deg) translateY(0)}
-  48%{transform:rotateY(-92deg) rotateX(10deg) translateY(5%)}
-  100%{transform:rotateY(-180deg) translateY(0)}
+  0%{transform:translate3d(0,0,0) rotateY(0deg)}
+  100%{transform:translate3d(0,0,0) rotateY(-180deg)}
 }
 @keyframes turnPrev{
-  0%{transform:rotateY(0deg) translateY(0)}
-  48%{transform:rotateY(92deg) rotateX(-10deg) translateY(-5%)}
-  100%{transform:rotateY(180deg) translateY(0)}
+  0%{transform:translate3d(0,0,0) rotateY(0deg)}
+  100%{transform:translate3d(0,0,0) rotateY(180deg)}
 }
-.turning.go .tsheet{animation:turnNext .82s cubic-bezier(.22,.68,.24,1) forwards;transition:none}
-.turning.prev.go .tsheet{animation:turnPrev .82s cubic-bezier(.22,.68,.24,1) forwards;transition:none}
+.turning.go .tsheet{animation:turnNext .8s cubic-bezier(.3,.7,.2,1) forwards;transition:none}
+.turning.prev.go .tsheet{animation:turnPrev .8s cubic-bezier(.3,.7,.2,1) forwards;transition:none}
+
+/* ================= 手机/平板竖屏：小说版式 ================= */
+@media (max-width:900px){
+  #bookWrap{padding:0 6px}
+  .book-case{padding:6px;border-radius:9px}
+  .book-case::before{inset:3px;border-radius:6px}
+  .book-case::after{inset:6px;border-radius:4px;box-shadow:inset 0 0 10px rgba(0,0,0,.35)}
+  .bc{display:none}
+  .book.single{width:min(calc(96vw - 16px),calc((100vh - 128px) * 0.5625));aspect-ratio:9/16}
+  .book.single .binder{display:none}
+  .book.single .page-in{padding:14px 13px 10px}
+  .book.single .chapter{font-size:9px;letter-spacing:.18em}
+  .book.single .tag{font-size:16px;padding:4px 10px;max-width:92%}
+  .book.single .frame.p{width:94%;height:62%;margin:8px auto}
+  .book.single .frame.l{width:98%;height:58%;margin:8px auto}
+  .book.single .cap{font-size:12.5px;line-height:1.85;margin:4px 2px 0}
+  .book.single .shot{font-size:8px;margin-top:4px;letter-spacing:.08em}
+  .book.single .foot{margin-top:auto;padding-top:6px}
+  .book.single .foot .date{font-size:9px}
+  .book.single .seal{width:22px;height:22px;font-size:11px}
+  .book.single .pno{font-size:9px}
+  .book.single .postmark{display:none}
+  .book.single .page-in::after{display:none}
+  #bottom{justify-content:center;padding:6px 16px 10px}
+  #prevBtn,#nextBtn{display:none !important}
+  .pager{gap:2px}
+  #pagerText{font-size:10px}
+  .pager-hint{display:block;font-size:9px;opacity:.7}
+
+  /* 目录：手机全屏、单列、大行 */
+  #contentsView{padding:0;align-items:stretch}
+  #contentsView .ov-card{width:100%;height:100dvh;max-width:none;margin:0;border-radius:0;
+    padding:22px 18px calc(16px + env(safe-area-inset-bottom));overflow-y:auto;background:#FFFCF2;border:0}
+  #contentsView .ov-close{top:14px;right:14px;width:38px;height:38px;font-size:20px}
+  #contentsView .ov-head h2{font-size:34px;letter-spacing:.18em;margin-bottom:4px}
+  #contentsView .ov-head p{font-size:11px;letter-spacing:.08em;margin-bottom:12px}
+  #contentsView .vol-list{display:flex;flex-direction:column;gap:0;padding:0}
+  #contentsView .vol-row{display:grid;grid-template-columns:38px 1fr;grid-template-areas:"idx name" "idx meta";
+    gap:3px 10px;padding:15px 2px;border-bottom:1px solid rgba(80,60,30,.12);border-radius:0;background:transparent}
+  #contentsView .vol-row:hover{background:rgba(246,196,69,.12)}
+  #contentsView .idx{grid-area:idx;font-size:12px;color:var(--ink-3);padding-top:3px}
+  #contentsView .vname{grid-area:name;font-size:21px;line-height:1.35;white-space:normal;letter-spacing:.06em}
+  #contentsView .vname small{display:block;margin:4px 0 0;font-size:11px;line-height:1.6;color:var(--ink-3);letter-spacing:.02em}
+  #contentsView .vmeta{grid-area:meta;font-size:10px;margin-top:2px;color:var(--ink-3)}
+  #contentsView .vbar{display:none}
+  #contentsView .ov-foot{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,252,242,0),#FFFCF2 35%);
+    padding:14px 0 2px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  #contentsView .ov-foot .linkbtn{font-size:12px}
+}
+/* 手机：照片按原比例占满宽度，不再被大金框压小 */
+@media (max-width:900px){
+  .book.single .frame.p,.book.single .frame.l{width:100%;height:auto;margin:8px 0;padding:8px}
+  .book.single .frame-3d{height:auto}
+  .book.single .face.front{position:relative;display:block;height:auto}
+  .book.single .face.front img{position:static;display:block;width:auto;height:auto;max-width:100%;max-height:52vh;margin:0 auto;object-fit:contain}
+  .book.single .face.back{position:absolute;inset:0}
+  .book.single .video-frame{position:relative;height:auto;aspect-ratio:16/9}
+  .book.single .video-frame img{position:absolute;inset:0}
+  #contentsView .ov-head{padding-bottom:10px;border-bottom:1px solid rgba(80,60,30,.14);margin-bottom:4px}
+  #contentsView .ov-head h2{font-size:36px}
+  #contentsView .vol-row{grid-template-columns:44px 1fr}
+  #contentsView .idx{font-size:20px;color:#C9A63F;padding-top:0}
+  #contentsView .vname{font-size:22px}
+  #contentsView .ov-foot{padding-top:18px}
+}
+@media (max-width:900px){ #contentsView .vol-list{padding-bottom:96px} }
+/* 手机：把照片和正文放到页面中心，页脚贴底 */
+@media (max-width:900px){
+  .book.single .page-in{padding:14px 8px 10px;justify-content:center}
+  .book.single .frame.p,.book.single .frame.l{padding:6px;margin:6px 0}
+  .book.single .cap{font-size:12.5px;line-height:1.85;margin:6px 2px 0}
+  .book.single .shot{margin-top:4px}
+  .book.single .foot{margin-top:auto}
+  #contentsView .ov-head::before{content:"MR.DENTIER · 2025—2026";display:block;font-family:var(--mono);
+    font-size:9px;letter-spacing:.28em;color:#C9A63F;margin-bottom:8px}
+  #contentsView .ov-foot{position:static;margin-top:16px;background:none;border-top:1px solid rgba(80,60,30,.14);padding:14px 0 4px}
+  #contentsView .vol-list{padding-bottom:12px}
+}
+
+/* 手机目录：封面做头图 */
+@media (max-width:900px){
+  #contentsView .ov-head{position:relative;padding:22px 18px;border-radius:6px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(30,20,10,.18),rgba(30,20,10,.72)),
+      url('assets/photos/cover-art.jpg') center 38%/cover;
+    border-bottom:0;margin:0 0 8px}
+  #contentsView .ov-head h2{color:#FFF8E7;font-size:38px;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+  #contentsView .ov-head p{color:rgba(255,248,231,.88);margin:0}
+  #contentsView .ov-head::before{color:#F6C445}
+  #contentsView .vol-list{padding-top:2px}
+}
+@media (max-width:900px){ #contentsView .ov-close{background:rgba(30,20,10,.38);color:#FFF8E7;border-color:rgba(255,248,231,.45)} }
+#contentsView .ov-close{z-index:20;display:grid;place-items:center}
+/* 手机滑动时露出的下一页，避免中间空白 */
+.page{z-index:1}
+.page-under{position:absolute;inset:0;z-index:0;visibility:hidden;pointer-events:none;
+  background:var(--paper);border-radius:3px;overflow:hidden}
+.page-under.live{visibility:visible}
+/* ================= 平板两种方向 ================= */
+html.tablet-land #bookWrap{padding:0 8px}
+html.tablet-land .book{width:min(92vw,calc((100vh - 170px) * 1.6));aspect-ratio:1.6}
+html.tablet-land .book-case{padding:12px;border-radius:10px}
+html.tablet-land .book-case::before{inset:5px;border-radius:7px}
+html.tablet-land .book-case::after{inset:9px;border-radius:5px}
+html.tablet-land #top{padding:8px 18px 4px}
+html.tablet-land #bottom{justify-content:space-between;padding:4px 20px 8px}
+html.tablet-land #prevBtn,html.tablet-land #nextBtn{display:inline-flex !important}
+html.tablet-land .pager-hint{display:none}
+html.tablet-land .page-in{padding:24px 28px 18px}
+html.tablet-land .brand b{font-size:20px}
+html.tablet-land .tools button{font-size:12px;padding:6px 11px}
+html.tablet-port .book.single{width:min(calc(100vw - 36px),calc((100vh - 104px) * 0.5625))}
+/* ================= 音乐 / 添加照片 / 平板 ================= */
+#musicBtn.music-toggle{display:inline-flex;align-items:center;gap:8px}
+#musicBtn .vinyl-dot{width:14px;height:14px;border-radius:50%;display:inline-block;
+  background:repeating-radial-gradient(circle at 50% 50%,#171717 0 2px,#2a2a2a 2px 3px,#0d0d0d 3px 4px);
+  box-shadow:inset 0 0 0 1px rgba(201,166,63,.85),0 1px 2px rgba(0,0,0,.3)}
+#musicBtn.playing .vinyl-dot{animation:spin 3.4s linear infinite}
+#musicBtn .mt-label{letter-spacing:.08em}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#musicView .ov-card.music-card{max-width:940px;padding:32px 34px;border:1px solid rgba(201,166,63,.32);
+  background:linear-gradient(145deg,#FFFCF2,#FBF2DF);display:grid;grid-template-columns:42% 1fr;gap:34px}
+.music-left{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px}
+.record-stage{position:relative;width:min(300px,30vw);aspect-ratio:1;margin:2px auto 0}
+.vinyl{position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%,#0c0c0c 0 31%,transparent 31.5%),
+    repeating-radial-gradient(circle at 50% 50%,#141414 0 2px,#262626 2px 3px,#0b0b0b 3px 4px);
+  box-shadow:0 22px 44px rgba(40,28,12,.28),inset 0 0 0 1px rgba(201,166,63,.7);
+  animation:spin 18s linear infinite;animation-play-state:paused}
+.vinyl.playing{animation-play-state:running}
+.vinyl::after{content:"";position:absolute;left:50%;top:50%;width:5%;aspect-ratio:1;border-radius:50%;
+  background:#0a0a0a;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.vinyl-label{position:absolute;inset:32%;border-radius:50%;overflow:hidden;border:2px solid rgba(201,166,63,.9);
+  box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.vinyl-label img{width:100%;height:100%;object-fit:cover;display:block}
+.tonearm{position:absolute;right:-6%;top:-2%;width:52%;height:3px;background:linear-gradient(90deg,#C9A63F,#F1D792,#9A7425);
+  transform:rotate(32deg);transform-origin:100% 50%;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.tonearm::after{content:"";position:absolute;right:-8px;top:-7px;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#FFF0C4,#B08A2E);box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.track-now{text-align:center}
+.tn-kicker{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.24em;color:#A17E2E}
+#trackNow{display:block;font-family:var(--song);font-size:26px;letter-spacing:.08em;color:var(--ink);margin-top:5px}
+#trackArtist{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-3);margin-top:4px}
+.music-right{display:flex;flex-direction:column;min-width:0}
+.music-head span{font-family:var(--mono);font-size:8px;letter-spacing:.3em;color:#B08A2E}
+.music-head h2{font-family:var(--kai);font-size:28px;font-weight:400;letter-spacing:.1em;margin:4px 0 2px;color:var(--ink)}
+.music-head p{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-3);margin:0 0 10px}
+.track-list{border-top:1px solid rgba(80,60,30,.14);overflow-y:auto;max-height:265px;padding-right:4px}
+.track-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:10px 4px;
+  border-bottom:1px solid rgba(80,60,30,.09);cursor:pointer;transition:.2s}
+.track-row:hover{background:rgba(246,196,69,.14)}
+.track-row .tn{font-family:var(--mono);font-size:10px;color:#B08A2E}
+.track-row .tt{font-family:var(--song);font-size:15px;letter-spacing:.04em;color:var(--ink)}
+.track-row .td{font-family:var(--mono);font-size:9px;color:var(--ink-3)}
+.track-row.active{background:rgba(246,196,69,.22)}
+.track-row.active .tn,.track-row.active .tt{color:#8C5C10}
+.player-controls{margin-top:auto;padding-top:12px}
+.music-progress{display:flex;align-items:center;gap:10px}
+#musicSeek{flex:1;accent-color:#C9A63F;height:3px;cursor:pointer}
+#musicTime{font-family:var(--mono);font-size:9px;color:var(--ink-3);white-space:nowrap}
+.music-buttons{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:8px}
+.music-buttons button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(80,60,30,.2);
+  background:rgba(255,255,255,.5);color:var(--ink-2);font-size:20px;line-height:1;cursor:pointer}
+.music-buttons button.play{width:50px;height:50px;background:linear-gradient(145deg,#F6C445,#DDA92E);
+  border-color:rgba(150,110,20,.4);color:#3B2A08;font-size:18px;box-shadow:0 6px 14px rgba(180,130,30,.3)}
+.music-buttons button:hover{border-color:#C9A63F}
+
+#addBtn{padding:7px 12px;border:1px solid rgba(44,36,24,.18);background:rgba(255,255,255,.55);
+  color:var(--ink-2);font-family:var(--song);cursor:pointer}
+#addBtn span{font-size:11px;letter-spacing:.08em}
+.add-card{max-width:560px;padding:30px 32px}
+.drop-zone{border:1.5px dashed rgba(160,130,70,.55);background:rgba(255,255,255,.34);border-radius:4px;
+  padding:30px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.2s}
+.drop-zone.drag{background:rgba(246,196,69,.22);border-color:#C9A63F}
+.drop-mark{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:26px;color:#8C5C10;
+  background:rgba(246,196,69,.28);border:1px solid rgba(201,166,63,.5)}
+.drop-zone b{font-family:var(--kai);font-size:20px;font-weight:400;letter-spacing:.12em;color:var(--ink)}
+.drop-zone span{font-size:11px;color:var(--ink-3);letter-spacing:.06em;line-height:1.8}
+.goldbtn{margin-top:8px;padding:9px 24px;border:1px solid rgba(150,110,20,.4);border-radius:2px;cursor:pointer;
+  background:linear-gradient(145deg,#F6C445,#DDA92E);color:#3B2A08;font-family:var(--song);font-size:14px;letter-spacing:.12em}
+.add-note{text-align:center;font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--ink-3);margin:14px 0 0}
+
+/* 平板：音乐播放器两栏 + 目录/照片弹层 */
+html.tablet-land #musicView .music-card{grid-template-columns:40% 1fr;gap:28px;padding:28px 30px;max-width:92vw}
+html.tablet-land .record-stage{width:min(250px,26vw)}
+html.tablet-land .music-head h2{font-size:25px}
+html.tablet-land .track-list{max-height:210px}
+html.tablet-land #addView .add-card{max-width:620px}
+html.tablet-port #musicView .music-card{grid-template-columns:1fr;gap:14px;padding:22px 24px;max-height:92vh;overflow-y:auto}
+html.tablet-port .record-stage{width:190px}
+html.tablet-port .track-list{max-height:220px}
+html.tablet-port .music-head h2{font-size:22px}
+html.tablet-land #musicBtn{padding:6px 10px}
+@media (max-width:900px){
+  #musicView .music-card{grid-template-columns:1fr;gap:14px;padding:20px;max-height:92vh;overflow-y:auto}
+  .record-stage{width:160px}
+  .music-head h2{font-size:21px}
+  .track-list{max-height:190px}
+  #trackNow{font-size:22px}
+  #addBtn span{display:none}
+}
+.page.add-flash{animation:addGlow .9s ease}
+@keyframes addGlow{0%,100%{box-shadow:none}25%,60%{box-shadow:inset 0 0 0 3px rgba(246,196,69,.85),0 0 34px rgba(246,196,69,.45)}}
+.overlay{scrollbar-width:none}
+.overlay::-webkit-scrollbar{width:0;height:0}
+@media (max-width:900px){ .music-toggle .mt-label{display:none} html.tablet-land #musicBtn .mt-label{display:inline} }
+html.tablet-land #contentsView{padding:16px;align-items:center}
+html.tablet-land #contentsView .ov-card{width:min(840px,94vw);height:auto;max-height:calc(100vh - 32px);margin:0 auto;
+  border-radius:6px;padding:20px 26px;overflow-y:auto}
+html.tablet-land #contentsView .ov-head{min-height:118px;padding:18px 20px;margin-bottom:2px}
+html.tablet-land #contentsView .ov-head h2{font-size:32px}
+html.tablet-land #contentsView .vol-list{display:grid;grid-template-columns:1fr 1fr;column-gap:30px}
+html.tablet-land #contentsView .vol-row{grid-template-columns:34px 1fr;padding:9px 2px}
+html.tablet-land #contentsView .vname{font-size:18px}
+html.tablet-land #contentsView .vname small{font-size:10px;margin-top:2px}
+html.tablet-land #contentsView .vmeta{font-size:9px}
+html.tablet-land #contentsView .ov-foot{position:static;margin-top:8px;background:none;border-top:1px solid rgba(80,60,30,.14);padding:10px 0 2px}
+.track-list{scrollbar-width:none}
+.track-list::-webkit-scrollbar{width:0;height:0}
+html.tablet-land #addBtn span{display:inline}
+.ov-close{z-index:80 !important;pointer-events:auto}
+.ov-done{margin-top:12px;align-self:center;padding:9px 26px;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(201,166,63,.55);background:rgba(255,252,242,.75);color:#5A4520;
+  font-family:var(--song);font-size:12px;letter-spacing:.14em;transition:.25s}
+.ov-done:hover{background:linear-gradient(145deg,#F6C445,#DDA92E);border-color:#C9A63F;color:#3B2A08}
+.add-foot{display:flex;justify-content:center}
+.navbtn{min-width:132px;height:44px;padding:0 20px;border-radius:999px;
+  background:linear-gradient(150deg,rgba(255,252,242,.95),rgba(248,236,208,.92));
+  border:1px solid rgba(201,166,63,.55);color:#5A4520;
+  box-shadow:0 5px 16px rgba(120,90,40,.14),inset 0 0 0 1px rgba(255,255,255,.5);
+  font-family:var(--song);font-size:14px;letter-spacing:.12em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.25s}
+.navbtn:hover{background:linear-gradient(145deg,#F6C445,#DDA92E);border-color:#C9A63F;color:#3B2A08;
+  transform:translateY(-1px);box-shadow:0 8px 20px rgba(160,120,30,.2)}
+.navbtn:disabled{opacity:.52;transform:none;box-shadow:none}
+html.tablet-land .navbtn{min-width:150px;height:48px;font-size:15px}
+.spread-ghost{background:var(--paper);border-radius:3px;box-shadow:0 18px 40px rgba(80,55,20,.18);
+  will-change:transform,opacity;backface-visibility:hidden}
+/* 添加照片后的即时预览 */
+#addedView .added-card{max-width:min(760px,92vw);padding:28px 30px;text-align:center}
+.added-kicker{font-family:var(--mono);font-size:8px;letter-spacing:.28em;color:#B08A2E}
+#addedView h2{font-family:var(--kai);font-weight:400;font-size:30px;letter-spacing:.12em;margin:8px 0 4px;color:var(--ink)}
+.added-meta{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-3);margin:0 0 12px}
+.added-shot{background:#F6EBD3;border:1px solid rgba(80,60,30,.12);padding:12px;display:flex;align-items:center;justify-content:center;max-height:56vh;overflow:hidden}
+.added-shot img{max-width:100%;max-height:52vh;width:auto;height:auto;display:block;object-fit:contain;box-shadow:0 8px 22px rgba(80,60,30,.18)}
+.added-actions{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.added-actions .ov-done{margin-top:0}
+
+/* 给二十五岁的我 */
+#letterView{z-index:140}
+#letterView .letter-card{position:relative;max-width:min(780px,94vw);max-height:90vh;overflow-y:auto;padding:30px 42px 34px;
+  background:linear-gradient(145deg,#FFFDF5,#FBF1DC);border:1px solid rgba(201,166,63,.45);
+  box-shadow:0 30px 80px rgba(80,55,20,.25), inset 0 0 0 1px rgba(255,255,255,.55)}
+#letterView .letter-card::before{content:"";position:absolute;inset:12px;border:1px solid rgba(160,130,70,.28);pointer-events:none}
+.letter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:8px;letter-spacing:.2em;color:#A17E2E}
+.letter-head b{font-family:var(--kai);font-size:26px;font-weight:400;letter-spacing:.18em;color:var(--ink);white-space:nowrap}
+.letter-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(160,130,70,.55),transparent);margin:14px 0 18px}
+.letter-body{font-family:var(--song);font-size:15px;line-height:2.25;color:#3A3025;letter-spacing:.03em}
+.letter-body p{margin:0 0 10px;text-indent:2em}
+.letter-body p:first-child,.letter-body p:nth-child(2){text-indent:0}
+.letter-sign{text-align:right;margin-top:14px;font-family:var(--kai);font-size:15px;line-height:2;color:#4A3A28}
+.letter-sign span{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--ink-3)}
+.letter-seal{position:absolute;right:34px;bottom:44px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#B84734,#7E2622 60%,#601B18);color:#FFE8C2;font-family:var(--kai);
+  font-size:22px;transform:rotate(-7deg);box-shadow:0 6px 14px rgba(90,30,20,.35), inset 0 0 0 3px rgba(255,220,170,.2)}
+.letter-done{margin:18px auto 0}
+#coverStamp{user-select:none;touch-action:none}
+@media (max-width:900px){
+  #addedView .added-card{padding:20px;max-width:94vw}
+  #addedView h2{font-size:24px}
+  .added-shot img{max-height:44vh}
+  #letterView .letter-card{padding:22px 20px 26px;max-height:92vh}
+  .letter-head b{font-size:21px}
+  .letter-body{font-size:13.5px;line-height:2.05}
+  .letter-seal{right:18px;bottom:32px;width:42px;height:42px;font-size:18px}
+}
+#letterView .letter-card{scrollbar-width:none;padding-bottom:26px}
+#letterView .letter-card::-webkit-scrollbar{width:0;height:0}
+.letter-sign{padding-right:76px}
+.letter-seal{right:auto;left:34px;bottom:38px}
+@media (max-width:900px){.letter-sign{padding-right:54px}.letter-seal{left:18px;bottom:28px}}
+#letterView .letter-card{max-width:min(840px,94vw)}
+.letter-body{font-size:13.8px;line-height:2.05}
+@media (max-width:900px){.letter-body{font-size:12.8px;line-height:2}}
+.letter-done{display:block;margin:18px 0 0 auto}
+@media (max-width:900px){.letter-done{margin-right:0}}

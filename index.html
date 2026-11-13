@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mr.Dentier 的相册 · A Photo Album</title>
+<title>Mr.Dentier｜二十岁的一年</title>
 <meta name="description" content="To pursue your light, don't care other's eyes. 2025.10 — 2026.11。">
 <meta name="theme-color" content="#F6C445">
+<meta name="description" content="二十岁的一年，365 天的光。To pursue your light, don't care other's eyes.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mr.Dentier 的相册">
-<meta property="og:description" content="To pursue your light, don't care other's eyes. 二十岁的一年。">
-<meta property="og:image" content="assets/photos/cover-art.jpg">
+<meta property="og:title" content="Mr.Dentier · A Photo Album">
+<meta property="og:description" content="二十岁的一年，365 天的光。To pursue your light, don't care other's eyes.">
+<meta property="og:url" content="https://dentier-max.github.io/mrdentier/">
+<meta property="og:image" content="https://dentier-max.github.io/mrdentier/assets/photos/cover-art.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -51,7 +53,7 @@
         <div class="cover-face cover-back">
           <button class="cover-chip" id="toFront" data-i18n="backChip">↺ 回到封面</button>
           <div class="back-kicker" data-i18n="backKicker">COLOPHON · 装帧记</div>
-          <figure class="back-plate"><img src="assets/photos/p58a1d138.jpg" alt="A Poem in Blue"></figure>
+          <figure class="back-plate"><img src="assets/photos/f34.jpg" alt="A Poem in Blue"></figure>
           <h3 data-i18n="backTitle">Mr.Dentier 的相册</h3>
           <p class="back-motto">TO PURSUE YOUR LIGHT,<br>DON'T CARE OTHER'S EYES.</p>
           <div class="cover-scale" id="coverScale"></div>
@@ -68,7 +70,7 @@
       <div class="cover-pages"></div>
     </div>
     <p class="cover-hint" data-i18n="coverHint">轻点封面，翻开这一年</p>
-    <p class="cover-tiny">公开版 v1.1 · 255 页 / 去人物 / 微信可看</p>
+    <p class="cover-tiny">公开版 · 295 页 / 365 天的光</p>
     <button class="langbtn cover-lang" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
   </div>
 </section>
@@ -76,7 +78,7 @@
 <!-- ============ 书 ============ -->
 <main id="bookScreen" hidden>
   <header id="top">
-    <div class="brand"><b data-i18n="brand">Mr.Dentier 的相册</b><span>To pursue your light</span></div>
+    <div class="brand"><b data-i18n="brand">Mr.Dentier</b><span>To pursue your light</span></div>
     <nav class="tools">
       <button data-view="contents" data-i18n="navContents">目录</button>
       <button class="langbtn" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
@@ -91,6 +93,7 @@
       <div class="spread" id="spread">
         <article class="page left" id="pageL"></article>
         <article class="page right" id="pageR"></article>
+        <article class="page page-under" id="pageUnder" aria-hidden="true"></article>
       </div>
       <div class="turning" id="turning" hidden>
         <div class="tsheet">
