@@ -1187,3 +1187,19 @@ html.tablet-land .navbtn{min-width:150px;height:48px;font-size:15px}
   #musicView .ov-done{margin-top:8px;padding:7px 20px}
 }
 .face.front picture,.video-frame picture{display:contents}
+/* 封面使用响应式 WebP */
+.cover-art picture{display:block;width:100%;height:100%}
+.cover-art picture img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 36%}
+@media (max-width:900px){
+  #contentsView .ov-head{background-image:linear-gradient(180deg,rgba(30,20,10,.18),rgba(30,20,10,.72)),image-set(url('assets/photos/cover-art-s.webp') 1x,url('assets/photos/cover-art.jpg') 2x);background-position:center 38%;background-size:cover;background-repeat:no-repeat}
+}
+/* 微信内置浏览器：关掉最吃 GPU 的模糊/混合/装饰动画 */
+html.wechat .fx{display:none !important}
+html.wechat #desk::after{display:none !important}
+html.wechat .overlay{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:rgba(242,232,208,.985) !important}
+html.wechat #videoView{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:rgba(22,17,11,.97) !important}
+html.wechat .book-case{box-shadow:0 12px 26px rgba(50,28,12,.22) !important}
+html.wechat .page .postmark{text-shadow:none}
+html.wechat .page.right{will-change:auto}
+html.wechat #musicView .record,html.wechat #musicBtn.playing .vinyl-dot{animation:none !important}
+html.wechat .overlay{animation-duration:.25s}

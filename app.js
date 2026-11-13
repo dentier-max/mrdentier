@@ -1,6 +1,8 @@
 (function(){
 'use strict';
 var D = window.DATA;
+var IS_WECHAT = /micromessenger/i.test(navigator.userAgent);
+if(IS_WECHAT) document.documentElement.classList.add('wechat');
 var P = D.pages, ALL = D.all, VIDS = D.videos, ST = D.stats;
 var $ = function(id){ return document.getElementById(id); };
 var LANG = 'zh';
@@ -1436,8 +1438,12 @@ function setupMusic(){
   document.addEventListener('pointerdown', function unlockMusicOnce(){
     if(musicAudio && musicStarted && musicAudio.paused){ musicAudio.play().catch(function(){}); }
   }, { once: true });
-  // 进入 App 就播《主角》
-  loadTrack(0, true);
+  // 微信内置浏览器：先不抢图，首次触摸再起播（微信不允许真正自动播放）
+  if(IS_WECHAT){
+    document.addEventListener('pointerdown', function(){ if(!musicStarted) loadTrack(0, true); }, { once:true, passive:true });
+  } else {
+    loadTrack(0, true);
+  }
 }
 function shakeAddTarget(start){
   setTimeout(function(){

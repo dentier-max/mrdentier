@@ -18,6 +18,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="book.css">
+<script>if(/MicroMessenger/i.test(navigator.userAgent))document.documentElement.classList.add('wechat');</script>
 </head>
 <body>
 <div id="desk"></div>
@@ -30,7 +31,11 @@
         <div class="cover-face cover-front">
           <button class="cover-chip" id="toBack" data-i18n="coverChip">翻到封底 ↺</button>
           <div class="cover-art">
-            <img src="assets/photos/cover-art.jpg" alt="Mr.Dentier with a camera">
+            <picture>
+              <source media="(max-width:600px)" srcset="assets/photos/cover-art-s.webp" type="image/webp">
+              <source srcset="assets/photos/cover-art-l.webp" type="image/webp">
+              <img src="assets/photos/cover-art.jpg" alt="Mr.Dentier with a camera" fetchpriority="high">
+            </picture>
             <div class="cover-kicker">PHOTO ALBUM · NO.001 · 2025—2026</div>
             <div class="cover-foil"></div>
             <div class="cover-foil-label"><span>Mr.Dentier</span></div>
@@ -142,7 +147,7 @@
     <div class="music-left">
       <div class="record-stage">
         <div class="vinyl" id="vinyl">
-          <div class="vinyl-label"><img id="vinylArt" src="assets/photos/cover-art.jpg" alt=""></div>
+          <div class="vinyl-label"><img id="vinylArt" src="assets/photos/cover-art-s.webp" alt=""></div>
         </div>
         <div class="tonearm"></div>
       </div>
