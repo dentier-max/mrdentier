@@ -83,6 +83,7 @@
     <nav class="tools">
       <button data-view="contents" data-i18n="navContents">目录</button>
       <button class="langbtn" aria-label="switch language"><span class="zh">中</span><b>/</b><span class="en">EN</span></button>
+      <button id="musicBtn" class="music-toggle" title="音乐"><span class="vinyl-dot"></span><span class="mt-label" data-i18n="navMusic">音乐</span></button>
       <button id="soundBtn">声 开</button>
     </nav>
   </header>
@@ -130,6 +131,42 @@
     <div class="ov-foot">
       <button class="linkbtn" id="openNames" data-i18n="openNames">翻到附卷 · 名字 →</button>
       <span class="mono" id="bindNote">装订进度 34 / 383</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 浮层：音乐 ============ -->
+<div class="overlay" id="musicView" hidden>
+  <div class="ov-card music-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="music-left">
+      <div class="record-stage">
+        <div class="vinyl" id="vinyl">
+          <div class="vinyl-label"><img id="vinylArt" src="assets/photos/cover-art.jpg" alt=""></div>
+        </div>
+        <div class="tonearm"></div>
+      </div>
+      <div class="track-now">
+        <span class="tn-kicker">NOW PLAYING · 私藏原声</span>
+        <b id="trackNow">主角</b>
+        <small id="trackArtist">Mr.Dentier · 2026</small>
+      </div>
+    </div>
+    <div class="music-right">
+      <div class="music-head"><span>PLAYLIST</span><h2>这一年，循环播放</h2><p>主角第一首 · 忘记时间第二首</p></div>
+      <div class="track-list" id="trackList"></div>
+      <div class="player-controls">
+        <div class="music-progress">
+          <input id="musicSeek" type="range" min="0" max="1000" value="0" aria-label="播放进度">
+          <span id="musicTime">0:00 / 0:00</span>
+        </div>
+        <div class="music-buttons">
+          <button id="musicPrev" aria-label="上一首">‹</button>
+          <button id="musicPlay" class="play" aria-label="播放">▶</button>
+          <button id="musicNext" aria-label="下一首">›</button>
+        </div>
+        <button class="ov-done" data-close>合上乐页 · 回相册</button>
+      </div>
     </div>
   </div>
 </div>
@@ -229,6 +266,7 @@
   <span>JINGYUE · 鲸月</span>
 </div>
 
+<audio id="musicAudio" preload="metadata"></audio>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>

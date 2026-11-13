@@ -1123,3 +1123,66 @@ html.tablet-land .navbtn{min-width:150px;height:48px;font-size:15px}
 @media (max-width:900px){.letter-body{font-size:12.8px;line-height:2}}
 .letter-done{display:block;margin:18px 0 0 auto}
 @media (max-width:900px){.letter-done{margin-right:0}}
+/* 最后一页 · 给二十五岁的我 */
+.letter-page-in{padding:26px 34px 18px;justify-content:flex-start}
+.letter-page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;color:#A17E2E;flex:0 0 auto}
+.letter-page-head b{font-family:var(--kai);font-weight:400;font-size:24px;letter-spacing:.14em;color:var(--ink);white-space:nowrap}
+.letter-page-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(160,130,70,.55),transparent);margin:9px 0 10px;flex:0 0 auto}
+.letter-page-body{font-family:var(--song);font-size:13.2px;line-height:2;color:#3A3025;letter-spacing:.02em;flex:1 1 auto;overflow-y:auto;scrollbar-width:none;padding-right:4px}
+.letter-page-body::-webkit-scrollbar{width:0}
+.letter-page-body p{margin:0 0 7px;text-indent:2em}
+.letter-page-body p:first-child,.letter-page-body p:nth-child(2){text-indent:0}
+.letter-page-sign{text-align:right;margin-top:8px;font-family:var(--kai);font-size:13px;line-height:1.9;color:#4A3A28;flex:0 0 auto;padding-right:52px}
+.letter-page-sign span{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--ink-3)}
+.letter-page-seal{position:absolute;left:30px;bottom:54px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#B84734,#7E2622 60%,#601B18);color:#FFE8C2;font-family:var(--kai);font-size:18px;
+  transform:rotate(-7deg);box-shadow:0 5px 12px rgba(90,30,20,.3), inset 0 0 0 3px rgba(255,220,170,.18)}
+.cap-extra{font-family:var(--song);font-size:11.5px;line-height:1.85;color:var(--ink-2);margin:0 0 2px;letter-spacing:.02em}
+@media (max-width:900px){
+  .letter-page-in{padding:16px 14px 10px}
+  .letter-page-head b{font-size:19px}
+  .letter-page-head span{font-size:6.5px}
+  .letter-page-body{font-size:11.8px;line-height:1.85}
+  .letter-page-sign{font-size:12px;padding-right:46px}
+  .letter-page-seal{left:16px;bottom:42px;width:32px;height:32px;font-size:14px}
+  .cap-extra{font-size:11px}
+}
+/* 手机网页：画面优先、字更大、正文更多 */
+@media (max-width:600px){
+  body.public .book.single .frame.p,body.public .book.single .frame.l{width:100%;height:50%;padding:5px;margin:5px 0;overflow:hidden}
+  body.public .book.single .frame .frame-3d{height:100%}
+  body.public .book.single .frame .face.front{height:100%;position:relative}
+  body.public .book.single .frame .face.front img{width:100%;height:100%;max-height:none;object-fit:cover}
+  body.public .book.single .video-frame{height:100%;aspect-ratio:auto}
+  body.public .book.single .tag{font-size:17px;padding:4px 10px}
+  body.public .book.single .cap{font-size:15px;line-height:1.95;margin-top:7px}
+  body.public .book.single .cap-extra{font-size:13px;line-height:1.85}
+  body.public .book.single .shot{font-size:9px}
+  body.public .book.single .foot .date{font-size:10px}
+  body.public .book.single .pno{font-size:9.5px}
+  body.public .book.single .chapter{font-size:9px}
+}
+@media (max-width:600px){
+  .letter-page-head span:last-child{display:none}
+  .letter-page-head b{font-size:20px}
+  .letter-page-body{font-size:12.4px;line-height:1.96}
+}
+@media (max-width:900px){
+  #musicView .ov-card.music-card{grid-template-columns:1fr;gap:14px;padding:20px;max-height:92vh;overflow-y:auto}
+  #musicView .music-left{width:100%;min-width:0}
+  #musicView .music-right{width:100%;min-width:0}
+  #musicView .music-head h2{font-size:21px;white-space:normal}
+  #musicView .track-list{width:100%}
+}
+@media (max-width:600px){
+  #musicView .ov-card.music-card{padding:16px 18px;gap:10px}
+  #musicView .record-stage{width:132px}
+  #musicView .track-now b{font-size:22px}
+  #musicView .music-head h2{font-size:19px;margin-top:2px}
+  #musicView .music-head p{margin-bottom:5px}
+  #musicView .track-row{padding:7px 3px}
+  #musicView .track-list{max-height:200px}
+  #musicView .player-controls{padding-top:6px}
+  #musicView .music-buttons{gap:12px;margin-top:4px}
+  #musicView .ov-done{margin-top:8px;padding:7px 20px}
+}

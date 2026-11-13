@@ -214,8 +214,44 @@ function volumeOf(dir){
 function topDir(dir){ return (dir || '').split('/')[0]; }
 
 /* ---------------- 纸页 ---------------- */
+function extraLine(p){
+  var top = (p.dir || '').split('/')[0];
+  if(p.kind === 'video') return '按下播放，那几秒又活了一次。';
+  var lines = {
+    '校园':'校园里的路很长，你总以为还会再走一次。',
+    '意义':'这些寻常的一刻，后来都成了回不去的日子。',
+    '影石':'夜里没有别人，只有相机和你还醒着。',
+    '神图':'山和海都不说话，但它们记得你来过。',
+    '生活':'一顿饭的工夫，日子就有了形状。',
+    '抽象':'不太正经的一页，也算认真活过。',
+    '个性':'你看见自己，也看见那天的光。',
+    'Life':'动起来的那几秒，比照片更像昨天。'
+  };
+  return lines[top] || '一页光，留在这里。';
+}
+function letterPageHTML(p){
+  var dateLabel = fmtDate(p.date);
+  return '<div class="chapter">附卷 · 给未来的我</div>'
+    + '<div class="page-in letter-page-in">'
+    +   '<div class="letter-page-head"><span>SEALED · 2026.11.13</span><b>给二十五岁的我</b><span>OPEN IN 2031</span></div>'
+    +   '<div class="letter-page-rule"></div>'
+    +   '<div class="letter-page-body">'
+    +     '<p>给二十五岁的我：</p>'
+    +     '<p>见字如面。</p>'
+    +     '<p>写这封信的时候，我二十岁。窗外有风，桌上那杯咖啡已经凉了，相机里还留着今天的黄昏。我不知道五年后的你，是否还留着这些，是否还会为一片叶子停下来。</p>'
+    +     '<p>如果你已经不再拍照，也没关系。但请你记得，二十岁的我，曾经那么认真地想把你变成更好的人。</p>'
+    +     '<p>五年里，你大概会弄丢一些东西：一些人，一些以为会永远的声音，一些不肯低头的夜晚。你会怀疑自己走错了。可如果二十五岁的你，还能在某个傍晚忽然想起这一年——黄槐、海、邮局、夜路，和那些没说出口的话——那就说明，你没有把心弄丢。</p>'
+    +     '<p>我一直想去看更大的世界。别替我把这件事忘了。去看海，坐一次夜车，把相机举起来，哪怕没有人看。孤独不是失败，它只是提醒你，你还在等一个真正听得懂的人。等不到，也要好好活。</p>'
+    +     '<p>二十五岁，不必成为谁。只要还是你，还愿意为一点光走很远的路，就够了。</p>'
+    +   '</div>'
+    +   '<div class="letter-page-sign">二十岁的 Mr.Dentier<br><span>2026.11.13</span></div>'
+    +   '<div class="letter-page-seal">光</div>'
+    +   '<div class="foot"><span class="date">' + dateLabel + '</span><span class="seal">' + (p.seal || '光') + '</span><span class="pno">' + pad(p.n) + '</span></div>'
+    + '</div>';
+}
 function pageHTML(p){
   if(!p) return '';
+  if(p.kind === 'letter') return letterPageHTML(p);
   var title = LANG === 'en' && p.title_en ? p.title_en : p.title;
   var cap = LANG === 'en' && p.caption_en ? p.caption_en : p.caption;
   var back = LANG === 'en' && p.back_en ? p.back_en : p.back;
@@ -264,6 +300,7 @@ function pageHTML(p){
     +     '</div>'
     +   '</figure>'
     +   '<p class="cap">' + esc(cap) + '</p>'
+    +   '<p class="cap-extra">' + esc(extraLine(p)) + '</p>'
     +   shot
     +   '<div class="postmark" aria-hidden="true"><span>' + pmDate + '<br>' + T('鲸月 记', 'JINGYUE') + '</span></div>'
     +   '<div class="foot">'
@@ -1391,7 +1428,7 @@ function setupMusic(){
     if(musicAudio && musicStarted && musicAudio.paused){ musicAudio.play().catch(function(){}); }
   }, { once: true });
   // 进入 App 就播《主角》
-  if(D.mode !== 'public') loadTrack(0, true);
+  loadTrack(0, true);
 }
 function shakeAddTarget(start){
   setTimeout(function(){
@@ -1482,6 +1519,7 @@ function setupLetter(){
 }
 function setupMode(){
   if(D.mode === 'public'){
+    document.body.classList.add('public');
     var mb = document.querySelector('[data-view="models"]');
     if(mb) mb.style.display = 'none';
   }
