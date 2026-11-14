@@ -664,6 +664,12 @@ function gotoHash(){
 }
 function openBook(){
   paperSound();
+  // 进入相册时继续/开始播放第一首（忘记时间），
+  // 同时兼容浏览器自动播放限制：本次点击也是一次有效用户手势。
+  if(musicAudio){
+    if(!musicStarted) loadTrack(0, true);
+    else if(musicAudio.paused) musicAudio.play().catch(function(){});
+  }
   $('coverScreen').classList.add('gone');
   setTimeout(function(){ $('coverScreen').hidden = true; $('bookScreen').hidden = false; render(); gotoHash(); }, 520);
 }
@@ -1355,8 +1361,8 @@ function addOne(db, file){
   });
 }
 var TRACKS = [
-  { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
   { title:'忘记时间', file:'music/02-wangjishijian.mp3', dur:'4:32' },
+  { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
   { title:'偏爱', file:'music/03-pianai.mp3', dur:'3:33' },
   { title:'默', file:'music/04-mo.mp3', dur:'5:26' },
   { title:'此生不换', file:'music/05-cishibuhuan.mp3', dur:'4:26' }
