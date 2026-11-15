@@ -17,7 +17,7 @@
 
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="book.css?v=20261115b">
+<link rel="stylesheet" href="book.css?v=20261115e">
 <script>if(/MicroMessenger/i.test(navigator.userAgent))document.documentElement.classList.add('wechat');</script>
 </head>
 <body>
@@ -32,7 +32,7 @@
           <button class="cover-chip" id="toBack" data-i18n="coverChip">翻到封底 ↺</button>
           <div class="cover-art">
             <picture>
-              <source media="(max-width:600px)" srcset="assets/photos/cover-art-xs.webp" type="image/webp">
+              <source media="(max-width:600px)" srcset="assets/photos/cover-art-m.webp" type="image/webp">
               <source srcset="assets/photos/cover-art-l.webp" type="image/webp">
               <img src="assets/photos/cover-art.jpg" alt="Mr.Dentier with a camera" fetchpriority="high">
             </picture>
@@ -122,25 +122,10 @@
 
   <footer id="bottom">
     <button id="prevBtn" class="navbtn" data-i18n="prev">← 上一页</button>
-    <div class="pager"><span id="pagerText">第 1 / 17 页</span><span class="pager-hint" data-i18n="pagerHint">翻页 · 长按照片有背面</span>
-      <button id="commentBtn" class="comment-link" data-i18n="navComments" style="appearance:none;border:1px solid rgba(150,110,20,.38);border-radius:999px;background:rgba(255,252,242,.66);color:#7A5A1E;font-size:11px;letter-spacing:.08em;padding:4px 13px;line-height:1.4;cursor:pointer;text-decoration:none;box-shadow:0 1px 3px rgba(120,90,40,.08)">✎ 匿名留言</button></div>
+    <div class="pager"><span id="pagerText">第 1 / 17 页</span><span class="pager-hint" data-i18n="pagerHint">翻页 · 长按照片有背面</span></div>
     <button id="nextBtn" class="navbtn" data-i18n="next">下一页 →</button>
   </footer>
 </main>
-
-<!-- ============ 浮层：匿名留言 ============ -->
-<div class="overlay" id="commentsView" hidden>
-  <div class="ov-card comments-card">
-    <button class="ov-close" data-close>×</button>
-    <div class="comments-head">
-      <span class="comments-kicker">ANONYMOUS NOTES</span>
-      <h2 data-i18n="commentsTitle">匿名留言</h2>
-      <p id="commentsPageTitle"></p>
-    </div>
-    <div class="comments-note"><span id="commentsAlias"></span> · 不用真名，每个人用编号区分 · 留言公开，请勿写隐私</div>
-    <div id="HCB_comment_box" class="comments-box"><div class="comments-loading">正在打开留言本…</div></div>
-  </div>
-</div>
 
 <!-- ============ 浮层：目录 ============ -->
 <div class="overlay" id="contentsView" hidden>
@@ -287,7 +272,7 @@
 </div>
 
 <audio id="musicAudio" preload="metadata"></audio>
-<script src="data.js?v=20261115b"></script>
-<script src="app.js?v=20261115c"></script>
+<script src="data.js?v=20261115e"></script>
+<script src="app.js?v=20261115e"></script>
 </body>
 </html>

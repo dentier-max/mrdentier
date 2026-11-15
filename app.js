@@ -218,12 +218,12 @@ function topDir(dir){ return (dir || '').split('/')[0]; }
 
 function imgTag(src, alt, loading, lqip){
   var base = String(src || '').replace(/\.jpg$/i, '');
-  var s = base + '-xs.webp', l = base + '-l.webp';
+  var s = base + '-m.webp', l = base + '-l.webp';
   var ph = lqip ? ' style="background-image:url(data:image/webp;base64,' + lqip + ');background-size:cover;background-position:center"' : '';
   return '<picture>'
     + '<source media="(max-width:600px)" srcset="' + s + '" type="image/webp">'
     + '<source srcset="' + l + '" type="image/webp">'
-    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async"' + ph + '>'
+    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async" onload="this.classList.add(\'img-in\')"' + ph + '>'
     + '</picture>';
 }
 /* ---------------- 纸页 ---------------- */
@@ -349,15 +349,16 @@ function render(){
   $('prevBtn').disabled = idx <= 0;
   $('nextBtn').disabled = mode === 'single' ? idx >= P.length - 1 : idx + 2 >= P.length;
   preloadAround();
+  mountComments();
 }
 function pageImgURL(p, small){
   var src = p.kind === 'video' ? (p.poster || p.file) : p.file;
   if(!/\.jpg$/i.test(src)) return src;
-  return src.replace(/\.jpg$/i, '') + (small ? '-xs.webp' : '-l.webp');
+  return src.replace(/\.jpg$/i, '') + (small ? '-m.webp' : '-l.webp');
 }
 function preloadAround(){
   var small = window.matchMedia && window.matchMedia('(max-width:600px)').matches;
-  var ahead = mode === 'single' ? 5 : 3;
+  var ahead = mode === 'single' ? 2 : 2;
   for(var d = 1; d <= ahead; d++){
     var q = P[idx + d];
     if(q && !q._pre){ q._pre = 1; var im = new Image(); im.src = pageImgURL(q, small); }
@@ -1356,10 +1357,8 @@ function addOne(db, file){
   });
 }
 var TRACKS = [
-  { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
   { title:'忘记时间', file:'music/02-wangjishijian.mp3', dur:'4:32' },
-  { title:'偏爱', file:'music/03-pianai.mp3', dur:'3:33' },
-  { title:'默', file:'music/04-mo.mp3', dur:'5:26' },
+  { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
   { title:'此生不换', file:'music/05-cishibuhuan.mp3', dur:'4:26' }
 ];
 var musicAudio = null, musicIdx = 0, musicStarted = false;
@@ -1556,60 +1555,83 @@ buildPlaylist();
 renderEggs();
 setupMode();
 
-/* ---------------- 匿名留言 ---------------- */
+/* ---------------- 页内匿名留言 ---------------- */
+var commentToken = 0, commentKey = '', commentPanel = null;
 function anonAlias(){
   try{
-    var k = 'mrd_anon_id', v = localStorage.getItem(k);
-    if(!v){ v = Math.random().toString(16).slice(2,6).toUpperCase(); localStorage.setItem(k, v); }
-    return '匿名·' + v;
+    var k='mrd_anon_id', v=localStorage.getItem(k);
+    if(!v){ v=Math.random().toString(16).slice(2,6).toUpperCase(); localStorage.setItem(k,v); }
+    return '匿名·'+v;
   }catch(e){ return '匿名·访客'; }
 }
-function loadCommentsWidget(p){
-  var box = $('HCB_comment_box'); if(!box || !p) return;
-  var alias = anonAlias();
-  if($('commentsAlias')) $('commentsAlias').textContent = '你的编号：' + alias;
-  var pageUrl = 'https://dentier-max.github.io/mrdentier/?p=' + encodeURIComponent(p.key || ('page' + p.n));
-  window.hcb_user = {
-    PAGE: pageUrl,
-    comments_header: T('留言', 'Comments'),
-    name_label: T('匿名编号', 'Anonymous ID'),
-    content_label: T('说点什么…', 'Say something…'),
-    add: T('写一条匿名留言', 'Write an anonymous note'),
-    again: T('再写一条', 'Write another'),
-    submit: T('留下这句话', 'Leave it'),
-    no_comments_msg: T('还没有人留言。', 'No comments yet.'),
-    anonymous: '匿名'
-  };
-  var old = document.getElementById('hcbScript'); if(old) old.parentNode.removeChild(old);
+function makeCommentPanel(){
+  if(commentPanel) return commentPanel;
+  commentPanel=document.createElement('section');
+  commentPanel.id='pageComments';
+  commentPanel.className='page-comments';
+  commentPanel.hidden=true;
+  commentPanel.innerHTML='<div class="pc-head"><span class="pc-title">本页留言</span><span class="pc-alias"></span></div><div class="pc-body" id="pageCommentsBody"></div>';
+  return commentPanel;
+}
+function mountComments(){
+  if(!commentPanel) makeCommentPanel();
+  if($('bookScreen') && $('bookScreen').hidden){ commentPanel.hidden = true; return; }
+  var right=$('pageR'), left=$('pageL');
+  var target=null;
+  if(right && right.innerHTML.trim() && right.querySelector('.page-in')) target=right;
+  else if(left && left.innerHTML.trim() && left.querySelector('.page-in')) target=left;
+  if(!target){ commentPanel.hidden=true; return; }
+  var pageIn=target.querySelector('.page-in');
+  var foot=pageIn.querySelector('.foot');
+  if(commentPanel.parentNode!==pageIn){ if(foot) pageIn.insertBefore(commentPanel,foot); else pageIn.appendChild(commentPanel); }
+  commentPanel.hidden=false;
+  var p=P[idx]; if(!p) return;
+  if(commentKey!==p.key) loadPageComments(p);
+}
+function wireCommentAlias(){
+  var alias=anonAlias();
+  if(commentPanel && commentPanel.querySelector('.pc-alias')) commentPanel.querySelector('.pc-alias').textContent=alias;
+  var n=document.getElementById('hcb_form_name'); if(n){ if(n.value!==alias) n.value=alias; n.readOnly=true; }
+  var c=document.getElementById('hcb_form_name_container'); if(c) c.style.display='block';
+  var t=document.getElementById('hcb_form_content'); if(t){ t.setAttribute('maxlength','80'); t.setAttribute('placeholder','留一句话，最多 80 字…'); t.style.height='26px'; t.style.minHeight='26px'; }
+  var f=document.getElementById('hcb_file'); if(f) f.style.display='none';
+  var fl=document.getElementById('hcb_file_label'); if(fl) fl.style.display='none';
+}
+function loadPageComments(p){
+  var body=document.getElementById('pageCommentsBody'); if(!body) return;
+  commentKey=p.key || ('page'+p.n);
+  var token=++commentToken;
+  var alias=anonAlias();
+  if(commentPanel && commentPanel.querySelector('.pc-alias')) commentPanel.querySelector('.pc-alias').textContent=alias;
+  body.innerHTML='<div class="pc-skeleton"><i></i><i></i><i></i><span>正在打开本页留言…</span></div>';
+  var old=document.getElementById('hcbScript'); if(old) old.parentNode.removeChild(old);
   if(window.__hcbObs){ try{ window.__hcbObs.disconnect(); }catch(e){} }
-  box.innerHTML = '<div class="comments-loading">正在打开留言本…</div>';
-  function wire(){
-    var n = document.getElementById('hcb_form_name');
-    if(n){ if(n.value !== alias) n.value = alias; n.readOnly = true; }
-    var c = document.getElementById('hcb_form_name_container'); if(c) c.style.display = '';
-    var f = document.getElementById('hcb_file'); if(f) f.style.display = 'none';
-    var fl = document.getElementById('hcb_file_label'); if(fl) fl.style.display = 'none';
-  }
-  window.__hcbObs = new MutationObserver(wire);
-  window.__hcbObs.observe(box, {childList:true, subtree:true});
-  var s = document.createElement('script');
-  s.id = 'hcbScript';
-  s.src = 'https://www.htmlcommentbox.com/jread?page=' + encodeURIComponent(pageUrl) + '&opts=16478&num=50&ts=' + Date.now();
-  s.onerror = function(){ box.innerHTML = '<div class="comments-loading">留言本暂时打不开，稍后再试。</div>'; };
-  document.head.appendChild(s);
-  setTimeout(wire, 400); setTimeout(wire, 1200); setTimeout(wire, 2500);
+  var pageUrl='https://dentier-max.github.io/mrdentier/?p='+encodeURIComponent(commentKey);
+  setTimeout(function(){
+    if(token!==commentToken) return;
+    window.hcb_user={
+      PAGE: pageUrl,
+      MAX_CHARS: 80,
+      comments_header:'', name_label:'匿名编号',
+      content_label:'', add:'', again:'再写一条',
+      submit:'留下', no_comments_msg:'还没有人留言，写第一句吧。',
+      anonymous:'匿名'
+    };
+    body.innerHTML='<div id="HCB_comment_box"></div>';
+    window.__hcbObs=new MutationObserver(wireCommentAlias);
+    window.__hcbObs.observe(body,{childList:true,subtree:true});
+    var sc=document.createElement('script'); sc.id='hcbScript';
+    sc.src='https://www.htmlcommentbox.com/jread?page='+encodeURIComponent(pageUrl)+'&opts=16476&num=30&ts='+Date.now();
+    sc.onerror=function(){ if(token===commentToken) body.innerHTML='<div class="pc-error">留言暂时打不开，图片和相册不受影响。</div>'; };
+    document.head.appendChild(sc);
+    setTimeout(wireCommentAlias,300); setTimeout(wireCommentAlias,1000); setTimeout(wireCommentAlias,2200);
+  }, 650);
 }
 function setupComments(){
-  if(!$('commentBtn') || !$('commentsView')) return;
-  $('commentBtn').addEventListener('click', function(){
-    var p = P[idx];
-    if(!p) return;
-    if($('commentsPageTitle')) $('commentsPageTitle').textContent = T('第 ' + (idx + 1) + ' 页 · ', 'Page ' + (idx + 1) + ' · ') + (p.title || '');
-    openOverlay('commentsView');
-    loadCommentsWidget(p);
-  });
+  makeCommentPanel();
+  document.body.appendChild(commentPanel);
+  mountComments();
 }
-
 setupAddPhotos();
 setupMusic();
 setupComments();
