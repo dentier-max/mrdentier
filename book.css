@@ -1204,7 +1204,9 @@ html.wechat .page.right{will-change:auto}
 html.wechat #musicView .record,html.wechat #musicBtn.playing .vinyl-dot{animation:none !important}
 html.wechat .overlay{animation-duration:.25s}
 /* 匿名留言 */
-.comment-link{appearance:none;border:0;background:none;color:#8A6A2C;font-family:var(--song);font-size:11px;letter-spacing:.08em;cursor:pointer;padding:2px 0;text-decoration:underline;text-decoration-color:rgba(138,106,44,.35);text-underline-offset:3px}
+.comment-link{appearance:none;border:1px solid rgba(150,110,20,.38);border-radius:999px;background:rgba(255,252,242,.66);color:#7A5A1E;font-family:var(--song);font-size:11px;letter-spacing:.08em;cursor:pointer;padding:4px 13px;line-height:1.4;text-decoration:none;box-shadow:0 1px 3px rgba(120,90,40,.08)}
+.comment-link::before{content:"✎ ";font-family:var(--kai);font-size:12px}
+.comment-link:hover{background:#F6C445;border-color:rgba(150,110,20,.5);color:#3B2A08}
 .comment-link:hover{color:#5A3A08}
 .comments-card{width:min(720px,92vw);max-height:88vh;padding:28px 30px 22px;overflow-y:auto}
 .comments-head{text-align:center;margin-bottom:8px}
@@ -1223,7 +1225,7 @@ html.wechat .overlay{animation-duration:.25s}
 #HCB_comment_box a{color:#8A6A2C !important}
 #HCB_comment_box #hcb_form_name_container{display:block !important}
 #HCB_comment_box #hcb_form_name,#HCB_comment_box label[for="hcb_form_name"]{display:none !important}
-#HCB_comment_box .admin-link,#HCB_comment_box #hcb_file_label,#HCB_comment_box #hcb_file{display:none !important}
+#HCB_comment_box .admin-link,#HCB_comment_box #hcb_file_label,#HCB_comment_box #hcb_file,#HCB_comment_box .home-desc{display:none !important}
 #HCB_comment_box .hcb-comment,#HCB_comment_box .comment{border-bottom:1px solid rgba(150,120,70,.14) !important;padding:10px 0 !important}
 @media (max-width:600px){
   .comment-link{font-size:10px}
