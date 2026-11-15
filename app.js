@@ -1443,7 +1443,7 @@ function setupMusic(){
   if(IS_WECHAT){
     document.addEventListener('pointerdown', function(){ if(!musicStarted) loadTrack(0, true); }, { once:true, passive:true });
   } else {
-    loadTrack(0, true);
+    setTimeout(function(){ loadTrack(0, true); }, 1400);
   }
 }
 function shakeAddTarget(start){
