@@ -32,7 +32,7 @@
           <button class="cover-chip" id="toBack" data-i18n="coverChip">翻到封底 ↺</button>
           <div class="cover-art">
             <picture>
-              <source media="(max-width:600px)" srcset="assets/photos/cover-art-s.webp" type="image/webp">
+              <source media="(max-width:600px)" srcset="assets/photos/cover-art-xs.webp" type="image/webp">
               <source srcset="assets/photos/cover-art-l.webp" type="image/webp">
               <img src="assets/photos/cover-art.jpg" alt="Mr.Dentier with a camera" fetchpriority="high">
             </picture>
@@ -52,7 +52,7 @@
             <div class="cover-stamp" id="coverStamp" title="try me">2026.11.13</div>
           </div>
           <div class="cover-band">
-            <span>NINE VOLUMES · 289 PIECES · ONE COPY</span>
+            <span>NINE VOLUMES · 383 PIECES · ONE COPY</span>
             <b data-i18n="coverMeta">二十岁</b>
           </div>
         </div>
@@ -65,7 +65,7 @@
           <div class="cover-scale" id="coverScale"></div>
           <div class="back-scale-label" data-i18n="backScale">二十年 · 二〇二六</div>
           <div class="back-colophon">
-            <p data-i18n="backCol1">卷一 至 卷九 · 289 件 · 已装订 276 页</p>
+            <p data-i18n="backCol1">卷一 至 卷九 · 383 件 · 已装订 34 页</p>
             <p data-i18n="backCol2">摄影 Mr.Dentier　编者 鲸月</p>
             <p data-i18n="backCol3">只此一本 · 2026.11.13</p>
           </div>
@@ -122,20 +122,35 @@
 
   <footer id="bottom">
     <button id="prevBtn" class="navbtn" data-i18n="prev">← 上一页</button>
-    <div class="pager"><span id="pagerText">第 1 / 17 页</span><span class="pager-hint" data-i18n="pagerHint">翻页 · 长按照片有背面</span></div>
+    <div class="pager"><span id="pagerText">第 1 / 17 页</span><span class="pager-hint" data-i18n="pagerHint">翻页 · 长按照片有背面</span>
+      <button id="commentBtn" class="comment-link" data-i18n="navComments">匿名留言</button></div>
     <button id="nextBtn" class="navbtn" data-i18n="next">下一页 →</button>
   </footer>
 </main>
+
+<!-- ============ 浮层：匿名留言 ============ -->
+<div class="overlay" id="commentsView" hidden>
+  <div class="ov-card comments-card">
+    <button class="ov-close" data-close>×</button>
+    <div class="comments-head">
+      <span class="comments-kicker">ANONYMOUS NOTES</span>
+      <h2 data-i18n="commentsTitle">匿名留言</h2>
+      <p id="commentsPageTitle"></p>
+    </div>
+    <div class="comments-note"><span id="commentsAlias"></span> · 不用真名，每个人用编号区分 · 留言公开，请勿写隐私</div>
+    <div id="HCB_comment_box" class="comments-box"><div class="comments-loading">正在打开留言本…</div></div>
+  </div>
+</div>
 
 <!-- ============ 浮层：目录 ============ -->
 <div class="overlay" id="contentsView" hidden>
   <div class="ov-card">
     <button class="ov-close" data-close>×</button>
-    <div class="ov-head"><h2 data-i18n="contentsTitle">目录</h2><p data-i18n="contentsSub">九卷 · 附卷 · 全本 289 件，已装订 276 页</p></div>
+    <div class="ov-head"><h2 data-i18n="contentsTitle">目录</h2><p data-i18n="contentsSub">九卷 · 附卷 · 全本 383 件，已装订 34 页</p></div>
     <div id="volumeList" class="vol-list"></div>
     <div class="ov-foot">
       <button class="linkbtn" id="openNames" data-i18n="openNames">翻到附卷 · 名字 →</button>
-      <span class="mono" id="bindNote">装订进度 276 / 289</span>
+      <span class="mono" id="bindNote">装订进度 34 / 383</span>
     </div>
   </div>
 </div>
@@ -153,12 +168,12 @@
       </div>
       <div class="track-now">
         <span class="tn-kicker">NOW PLAYING · 私藏原声</span>
-        <b id="trackNow">忘记时间</b>
+        <b id="trackNow">主角</b>
         <small id="trackArtist">Mr.Dentier · 2026</small>
       </div>
     </div>
     <div class="music-right">
-      <div class="music-head"><span>PLAYLIST</span><h2>这一年，循环播放</h2><p>忘记时间第一首 · 主角第二首</p></div>
+      <div class="music-head"><span>PLAYLIST</span><h2>这一年，循环播放</h2><p>主角第一首 · 忘记时间第二首</p></div>
       <div class="track-list" id="trackList"></div>
       <div class="player-controls">
         <div class="music-progress">
@@ -247,7 +262,7 @@
 <div class="overlay" id="namesView" hidden>
   <div class="ov-card parchment">
     <button class="ov-close" data-close>×</button>
-    <div class="ov-head"><h2 data-i18n="namesTitle">附卷 · 名字</h2><p id="namesNote">288 个文件，288 个已经有名字，0 个还在等</p></div>
+    <div class="ov-head"><h2 data-i18n="namesTitle">附卷 · 名字</h2><p id="namesNote">383 个文件，335 个已经有名字，48 个还在等</p></div>
     <div class="names-tools"><input id="namesSearch" data-i18n-ph="namesPH" placeholder="找一找你的名字…" autocomplete="off"><span class="mono" id="namesCount"></span></div>
     <div id="namesList" class="names-list"></div>
   </div>

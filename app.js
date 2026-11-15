@@ -42,7 +42,7 @@ function T(zh, en){ return LANG === 'en' ? en : zh; }
 
 var STR = {
   zh: {
-    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'目录', navMusic:'音乐', navAtlas:'年表', navReel:'放映室', navModels:'模型', navEggs:'彩蛋',
+    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'目录', navMusic:'音乐', navComments:'匿名留言', commentsTitle:'匿名留言', navAtlas:'年表', navReel:'放映室', navModels:'模型', navEggs:'彩蛋',
     prev:'← 上一页', next:'下一页 →', pagerHint:'翻页 · 长按照片有背面',
     soundOn:'声 开', soundOff:'声 关',
     coverChip:'翻到封底 ↺', coverSub:'的相册', coverMeta:'二十岁', coverHint:'轻点封面，翻开这一年',
@@ -61,7 +61,7 @@ var STR = {
     letterLabel:'2026.11.13 · 海上'
   },
   en: {
-    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'Contents', navMusic:'Music', navAtlas:'Atlas', navReel:'Reel', navModels:'Models', navEggs:'Eggs',
+    brand:'Mr.Dentier', subBrand:'To pursue your light', navContents:'Contents', navMusic:'Music', navComments:'Notes', commentsTitle:'Anonymous notes', navAtlas:'Atlas', navReel:'Reel', navModels:'Models', navEggs:'Eggs',
     prev:'← Previous', next:'Next →', pagerHint:'Turn pages · hold a photo to see its back',
     soundOn:'Sound on', soundOff:'Sound off',
     coverChip:'Back cover ↺', coverSub:'A Photo Album', coverMeta:'Twenty', coverHint:'Tap the cover to open the year',
@@ -216,13 +216,14 @@ function volumeOf(dir){
 }
 function topDir(dir){ return (dir || '').split('/')[0]; }
 
-function imgTag(src, alt, loading){
+function imgTag(src, alt, loading, lqip){
   var base = String(src || '').replace(/\.jpg$/i, '');
-  var s = base + '-s.webp', l = base + '-l.webp';
+  var s = base + '-xs.webp', l = base + '-l.webp';
+  var ph = lqip ? ' style="background-image:url(data:image/webp;base64,' + lqip + ');background-size:cover;background-position:center"' : '';
   return '<picture>'
     + '<source media="(max-width:600px)" srcset="' + s + '" type="image/webp">'
     + '<source srcset="' + l + '" type="image/webp">'
-    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async">'
+    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async"' + ph + '>'
     + '</picture>';
 }
 /* ---------------- 纸页 ---------------- */
@@ -289,7 +290,7 @@ function pageHTML(p){
       +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
       +   '<figure class="frame fr-film ' + orient + '" data-frame>'
       +     '<div class="video-frame" data-video="' + p.file + '" data-poster="' + (p.poster || '') + '" data-title="' + esc(title) + '" data-cap="' + esc(cap) + '">'
-      +       imgTag((p.poster || p.file), '', 'lazy')
+      +       imgTag((p.poster || p.file), '', 'lazy', p.poster_lqip)
       +       '<span class="play">▶</span><span class="vtime">' + dur + '</span>'
       +     '</div>'
       +   '</figure>'
@@ -307,7 +308,7 @@ function pageHTML(p){
     +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
     +   '<figure class="frame fr-' + p.frame + orient + '" data-frame>'
     +     '<div class="frame-3d">'
-    +       '<div class="face front">' + imgTag(p.file, title, 'lazy') + fx + dot + '</div>'
+    +       '<div class="face front">' + imgTag(p.file, title, 'lazy', p.lqip) + fx + dot + '</div>'
     +       '<div class="face back"><span>' + esc(back) + '</span></div>'
     +     '</div>'
     +   '</figure>'
@@ -352,11 +353,11 @@ function render(){
 function pageImgURL(p, small){
   var src = p.kind === 'video' ? (p.poster || p.file) : p.file;
   if(!/\.jpg$/i.test(src)) return src;
-  return src.replace(/\.jpg$/i, '') + (small ? '-s.webp' : '-l.webp');
+  return src.replace(/\.jpg$/i, '') + (small ? '-xs.webp' : '-l.webp');
 }
 function preloadAround(){
   var small = window.matchMedia && window.matchMedia('(max-width:600px)').matches;
-  var ahead = mode === 'single' ? 2 : 3;
+  var ahead = mode === 'single' ? 5 : 3;
   for(var d = 1; d <= ahead; d++){
     var q = P[idx + d];
     if(q && !q._pre){ q._pre = 1; var im = new Image(); im.src = pageImgURL(q, small); }
@@ -664,12 +665,6 @@ function gotoHash(){
 }
 function openBook(){
   paperSound();
-  // 进入相册时继续/开始播放第一首（忘记时间），
-  // 同时兼容浏览器自动播放限制：本次点击也是一次有效用户手势。
-  if(musicAudio){
-    if(!musicStarted) loadTrack(0, true);
-    else if(musicAudio.paused) musicAudio.play().catch(function(){});
-  }
   $('coverScreen').classList.add('gone');
   setTimeout(function(){ $('coverScreen').hidden = true; $('bookScreen').hidden = false; render(); gotoHash(); }, 520);
 }
@@ -921,7 +916,7 @@ function openOverlay(id){
   if(id === 'contentsView'){ buildVolumes(); }
 }
 function closeAll(silent){
-  ['contentsView','atlasView','reelView','modelsView','eggView','namesView','musicView','addView','addedView','letterView','secret'].forEach(function(id){
+  ['contentsView','atlasView','reelView','modelsView','eggView','namesView','musicView','addView','addedView','letterView','commentsView','secret'].forEach(function(id){
     var v = $(id); if(v) v.hidden = true;
   });
   openView = null;
@@ -1361,8 +1356,8 @@ function addOne(db, file){
   });
 }
 var TRACKS = [
-  { title:'忘记时间', file:'music/02-wangjishijian.mp3', dur:'4:32' },
   { title:'主角', file:'music/01-zhujue.mp3', dur:'4:18' },
+  { title:'忘记时间', file:'music/02-wangjishijian.mp3', dur:'4:32' },
   { title:'偏爱', file:'music/03-pianai.mp3', dur:'3:33' },
   { title:'默', file:'music/04-mo.mp3', dur:'5:26' },
   { title:'此生不换', file:'music/05-cishibuhuan.mp3', dur:'4:26' }
@@ -1560,8 +1555,64 @@ buildModels();
 buildPlaylist();
 renderEggs();
 setupMode();
+
+/* ---------------- 匿名留言 ---------------- */
+function anonAlias(){
+  try{
+    var k = 'mrd_anon_id', v = localStorage.getItem(k);
+    if(!v){ v = Math.random().toString(16).slice(2,6).toUpperCase(); localStorage.setItem(k, v); }
+    return '匿名·' + v;
+  }catch(e){ return '匿名·访客'; }
+}
+function loadCommentsWidget(p){
+  var box = $('HCB_comment_box'); if(!box || !p) return;
+  var alias = anonAlias();
+  if($('commentsAlias')) $('commentsAlias').textContent = '你的编号：' + alias;
+  var pageUrl = 'https://dentier-max.github.io/mrdentier/?p=' + encodeURIComponent(p.key || ('page' + p.n));
+  window.hcb_user = {
+    PAGE: pageUrl,
+    comments_header: T('留言', 'Comments'),
+    name_label: T('匿名编号', 'Anonymous ID'),
+    content_label: T('说点什么…', 'Say something…'),
+    add: T('写一条匿名留言', 'Write an anonymous note'),
+    again: T('再写一条', 'Write another'),
+    submit: T('留下这句话', 'Leave it'),
+    no_comments_msg: T('还没有人留言。', 'No comments yet.'),
+    anonymous: '匿名'
+  };
+  var old = document.getElementById('hcbScript'); if(old) old.parentNode.removeChild(old);
+  if(window.__hcbObs){ try{ window.__hcbObs.disconnect(); }catch(e){} }
+  box.innerHTML = '<div class="comments-loading">正在打开留言本…</div>';
+  function wire(){
+    var n = document.getElementById('hcb_form_name');
+    if(n){ if(n.value !== alias) n.value = alias; n.readOnly = true; }
+    var c = document.getElementById('hcb_form_name_container'); if(c) c.style.display = '';
+    var f = document.getElementById('hcb_file'); if(f) f.style.display = 'none';
+    var fl = document.getElementById('hcb_file_label'); if(fl) fl.style.display = 'none';
+  }
+  window.__hcbObs = new MutationObserver(wire);
+  window.__hcbObs.observe(box, {childList:true, subtree:true});
+  var s = document.createElement('script');
+  s.id = 'hcbScript';
+  s.src = 'https://www.htmlcommentbox.com/jread?page=' + encodeURIComponent(pageUrl) + '&opts=16478&num=50&ts=' + Date.now();
+  s.onerror = function(){ box.innerHTML = '<div class="comments-loading">留言本暂时打不开，稍后再试。</div>'; };
+  document.head.appendChild(s);
+  setTimeout(wire, 400); setTimeout(wire, 1200); setTimeout(wire, 2500);
+}
+function setupComments(){
+  if(!$('commentBtn') || !$('commentsView')) return;
+  $('commentBtn').addEventListener('click', function(){
+    var p = P[idx];
+    if(!p) return;
+    if($('commentsPageTitle')) $('commentsPageTitle').textContent = T('第 ' + (idx + 1) + ' 页 · ', 'Page ' + (idx + 1) + ' · ') + (p.title || '');
+    openOverlay('commentsView');
+    loadCommentsWidget(p);
+  });
+}
+
 setupAddPhotos();
 setupMusic();
+setupComments();
 setupLetter();
 resetIdle();
 $('coverScreen').hidden = false;

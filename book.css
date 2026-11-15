@@ -1203,3 +1203,34 @@ html.wechat .page .postmark{text-shadow:none}
 html.wechat .page.right{will-change:auto}
 html.wechat #musicView .record,html.wechat #musicBtn.playing .vinyl-dot{animation:none !important}
 html.wechat .overlay{animation-duration:.25s}
+/* 匿名留言 */
+.comment-link{appearance:none;border:0;background:none;color:#8A6A2C;font-family:var(--song);font-size:11px;letter-spacing:.08em;cursor:pointer;padding:2px 0;text-decoration:underline;text-decoration-color:rgba(138,106,44,.35);text-underline-offset:3px}
+.comment-link:hover{color:#5A3A08}
+.comments-card{width:min(720px,92vw);max-height:88vh;padding:28px 30px 22px;overflow-y:auto}
+.comments-head{text-align:center;margin-bottom:8px}
+.comments-kicker{font-family:var(--mono);font-size:8px;letter-spacing:.3em;color:#A17E2E}
+.comments-head h2{font-family:var(--kai);font-size:30px;font-weight:400;letter-spacing:.18em;margin:8px 0 4px;color:var(--ink)}
+.comments-head p{font-family:var(--song);font-size:12px;color:var(--ink-3);letter-spacing:.04em;margin:0}
+.comments-note{text-align:center;font-size:10px;color:var(--ink-3);margin:8px 0 16px;letter-spacing:.04em}
+.comments-note span{color:#8A6A2C}
+.comments-box{border-top:1px solid rgba(150,120,70,.2);padding-top:14px;min-height:130px;font-family:var(--song);color:var(--ink)}
+.comments-loading{text-align:center;padding:30px 0;color:var(--ink-3);font-size:12px;letter-spacing:.08em}
+#HCB_comment_box{font-family:var(--song) !important;color:var(--ink) !important}
+#HCB_comment_box h1,#HCB_comment_box h2,#HCB_comment_box h3{font-family:var(--kai) !important;font-weight:400 !important;letter-spacing:.1em !important}
+#HCB_comment_box input[type="text"],#HCB_comment_box textarea{border:1px solid rgba(150,120,70,.3) !important;background:rgba(255,252,242,.85) !important;border-radius:2px !important;font-family:var(--song) !important;color:var(--ink) !important;box-shadow:none !important}
+#HCB_comment_box textarea{min-height:86px !important;line-height:1.9 !important}
+#HCB_comment_box .btn,#HCB_comment_box input[type="submit"],#HCB_comment_box button{border:1px solid rgba(150,110,20,.4) !important;background:linear-gradient(145deg,#F6C445,#DDA92E) !important;color:#3B2A08 !important;border-radius:2px !important;font-family:var(--song) !important;box-shadow:none !important;text-shadow:none !important}
+#HCB_comment_box a{color:#8A6A2C !important}
+#HCB_comment_box #hcb_form_name_container{display:block !important}
+#HCB_comment_box #hcb_form_name,#HCB_comment_box label[for="hcb_form_name"]{display:none !important}
+#HCB_comment_box .admin-link,#HCB_comment_box #hcb_file_label,#HCB_comment_box #hcb_file{display:none !important}
+#HCB_comment_box .hcb-comment,#HCB_comment_box .comment{border-bottom:1px solid rgba(150,120,70,.14) !important;padding:10px 0 !important}
+@media (max-width:600px){
+  .comment-link{font-size:10px}
+  .comments-card{width:94vw;padding:20px 16px 14px;max-height:90vh}
+  .comments-head h2{font-size:24px}
+  .comments-head p{font-size:11px}
+  .comments-note{font-size:9px;margin-bottom:10px}
+  .comments-box{padding-top:10px}
+}
+#HCB_comment_box a[href*="htmlcommentbox.com"]{display:none !important}
