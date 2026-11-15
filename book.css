@@ -66,7 +66,7 @@ body.stars #desk{background:
 #coverScreen.gone{opacity:0;pointer-events:none}
 .cover-wrap{text-align:center}
 .cover-book{position:relative;width:min(430px,74vw);aspect-ratio:.715;margin:0 auto;perspective:2400px;cursor:pointer}
-.cover-3d{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.4,.05,.3,1)}
+.cover-3d{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .25s cubic-bezier(.4,.05,.3,1)}
 .cover-book.flipped .cover-3d{transform:rotateY(180deg)}
 .cover-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   border-radius:4px 10px 10px 4px;overflow:hidden;box-shadow:-16px 26px 60px rgba(120,90,40,.32)}
@@ -1236,8 +1236,6 @@ html.wechat .overlay{animation-duration:.25s}
   .comments-box{padding-top:10px}
 }
 #HCB_comment_box a[href*="htmlcommentbox.com"]{display:none !important}
-.face.front img.img-in,.video-frame img.img-in{animation:imgSoftIn .32s ease both}
-@keyframes imgSoftIn{from{opacity:.25;filter:blur(2px)}to{opacity:1;filter:none}}
 /* 页内匿名留言：固定在当前卡片底部 */
 .page-comments{flex:0 0 auto;height:126px;min-height:0;margin:5px 0 1px;border-top:1px solid rgba(70,50,25,.16);display:flex;flex-direction:column;overflow:hidden;position:relative}
 .pc-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;height:17px;font-family:var(--song);font-size:9px;letter-spacing:.12em;color:#7A5A1E}
@@ -1284,3 +1282,30 @@ html.wechat .overlay{animation-duration:.25s}
 /* 公开版页内留言布局 */
 .page .postmark{display:none}
 @media (max-width:600px){body.public .book.single .frame.p,body.public .book.single .frame.l{height:38%}}
+/* 聊天式页内留言 */
+.page-comments{background:rgba(255,250,238,.28);border-radius:3px}
+.pc-chat{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:2px 2px 1px}
+.pc-chat::-webkit-scrollbar{width:3px}
+.pc-chat::-webkit-scrollbar-thumb{background:rgba(150,110,20,.25);border-radius:2px}
+.pc-empty{font-family:var(--song);font-size:9px;line-height:1.6;color:var(--ink-3);text-align:center;padding:14px 4px;letter-spacing:.03em}
+.pc-msg{display:flex;align-items:flex-start;gap:5px;margin:0 0 4px}
+.pc-av{flex:0 0 16px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:6.5px;font-style:normal;
+  color:hsl(var(--h),55%,32%);background:hsl(var(--h),62%,88%);border:1px solid hsl(var(--h),55%,78%);margin-top:1px}
+.pc-bubble{min-width:0;background:rgba(255,255,255,.5);border:1px solid rgba(150,120,70,.14);border-radius:0 7px 7px 7px;padding:3px 6px;max-width:calc(100% - 24px)}
+.pc-bubble b{display:block;font-family:var(--mono);font-size:6.5px;font-weight:400;letter-spacing:.02em;color:#A17E2E;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-bubble p{margin:1px 0 0;font-family:var(--song);font-size:9px;line-height:1.4;color:#3A3025;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc-form{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding-top:3px;border-top:1px solid rgba(70,50,25,.1)}
+.pc-form input{flex:1 1 auto;min-width:0;height:24px;border:1px solid rgba(150,120,70,.28);border-radius:2px;background:rgba(255,252,242,.72);
+  font-family:var(--song);font-size:9.5px;color:var(--ink);padding:3px 6px;outline:none}
+.pc-form input::placeholder{color:rgba(80,60,30,.42)}
+.pc-form input:focus{border-color:rgba(150,110,20,.6);background:#FFFAED}
+.pc-form button{flex:0 0 auto;height:24px;border:1px solid rgba(150,110,20,.4);border-radius:2px;background:linear-gradient(145deg,#F6C445,#DDA92E);
+  color:#3B2A08;font-family:var(--song);font-size:9px;letter-spacing:.05em;padding:0 9px;cursor:pointer}
+.pc-form button:disabled{opacity:.55}
+@media (max-width:600px){
+  .pc-empty{font-size:8.5px;padding:12px 4px}
+  .pc-bubble p{font-size:8.5px}
+  .pc-bubble b{font-size:6px}
+  .pc-form input{font-size:9px;height:23px}
+  .pc-form button{font-size:8.5px;height:23px;padding:0 7px}
+}

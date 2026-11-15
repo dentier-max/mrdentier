@@ -216,14 +216,13 @@ function volumeOf(dir){
 }
 function topDir(dir){ return (dir || '').split('/')[0]; }
 
-function imgTag(src, alt, loading, lqip){
+function imgTag(src, alt, loading){
   var base = String(src || '').replace(/\.jpg$/i, '');
   var s = base + '-m.webp', l = base + '-l.webp';
-  var ph = lqip ? ' style="background-image:url(data:image/webp;base64,' + lqip + ');background-size:cover;background-position:center"' : '';
   return '<picture>'
     + '<source media="(max-width:600px)" srcset="' + s + '" type="image/webp">'
     + '<source srcset="' + l + '" type="image/webp">'
-    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async" onload="this.classList.add(\'img-in\')"' + ph + '>'
+    + '<img src="' + src + '" alt="' + esc(alt || '') + '" loading="' + (loading || 'lazy') + '" decoding="async">'
     + '</picture>';
 }
 /* ---------------- 纸页 ---------------- */
@@ -290,7 +289,7 @@ function pageHTML(p){
       +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
       +   '<figure class="frame fr-film ' + orient + '" data-frame>'
       +     '<div class="video-frame" data-video="' + p.file + '" data-poster="' + (p.poster || '') + '" data-title="' + esc(title) + '" data-cap="' + esc(cap) + '">'
-      +       imgTag((p.poster || p.file), '', 'lazy', p.poster_lqip)
+      +       imgTag((p.poster || p.file), '', 'lazy')
       +       '<span class="play">▶</span><span class="vtime">' + dur + '</span>'
       +     '</div>'
       +   '</figure>'
@@ -308,7 +307,7 @@ function pageHTML(p){
     +   '<div class="tag ' + p.tag + '" style="--r:' + rot + 'deg">' + esc(title) + '</div>'
     +   '<figure class="frame fr-' + p.frame + orient + '" data-frame>'
     +     '<div class="frame-3d">'
-    +       '<div class="face front">' + imgTag(p.file, title, 'lazy', p.lqip) + fx + dot + '</div>'
+    +       '<div class="face front">' + imgTag(p.file, title, 'lazy') + fx + dot + '</div>'
     +       '<div class="face back"><span>' + esc(back) + '</span></div>'
     +     '</div>'
     +   '</figure>'
@@ -536,7 +535,7 @@ function animateTurn(target, dir){
   var pr = $('pageR');
   showUnder(target);
   pageAnimating = true;
-  pr.style.transition = 'transform .24s cubic-bezier(.2,.7,.2,1)';
+  pr.style.transition = 'transform .14s cubic-bezier(.2,.7,.2,1)';
   pr.style.transform = 'translateX(' + (dir * 108) + '%)';
   pr.style.willChange = 'transform';
   paperSound();
@@ -546,7 +545,7 @@ function animateTurn(target, dir){
     resetPage();
     hideUnder();
     pageAnimating = false;
-  }, 250);
+  }, 150);
 }
 function slideTo(n){
   if(n < 0 || n >= P.length || pageAnimating) return;
@@ -667,7 +666,7 @@ function gotoHash(){
 function openBook(){
   paperSound();
   $('coverScreen').classList.add('gone');
-  setTimeout(function(){ $('coverScreen').hidden = true; $('bookScreen').hidden = false; render(); gotoHash(); }, 520);
+  setTimeout(function(){ $('coverScreen').hidden = true; $('bookScreen').hidden = false; render(); gotoHash(); }, 150);
 }
 $('coverBook').addEventListener('click', function(e){
   if(e.target.closest('#coverStamp') || e.target.closest('#coverSeal')) return;
@@ -1555,8 +1554,9 @@ buildPlaylist();
 renderEggs();
 setupMode();
 
-/* ---------------- 页内匿名留言 ---------------- */
-var commentToken = 0, commentKey = '', commentPanel = null;
+/* ---------------- 页内匿名留言（聊天框） ---------------- */
+var commentToken=0, commentKey='', commentPanel=null, commentCache={}, commentHost=null, commentPosting=false;
+function escHTML(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function anonAlias(){
   try{
     var k='mrd_anon_id', v=localStorage.getItem(k);
@@ -1564,72 +1564,121 @@ function anonAlias(){
     return '匿名·'+v;
   }catch(e){ return '匿名·访客'; }
 }
+function aliasHue(a){
+  var h=0; for(var i=0;i<a.length;i++) h=(h*31+a.charCodeAt(i))>>>0; return h%360;
+}
 function makeCommentPanel(){
   if(commentPanel) return commentPanel;
   commentPanel=document.createElement('section');
-  commentPanel.id='pageComments';
-  commentPanel.className='page-comments';
-  commentPanel.hidden=true;
-  commentPanel.innerHTML='<div class="pc-head"><span class="pc-title">本页留言</span><span class="pc-alias"></span></div><div class="pc-body" id="pageCommentsBody"></div>';
+  commentPanel.id='pageComments'; commentPanel.className='page-comments'; commentPanel.hidden=true;
+  commentPanel.innerHTML='<div class="pc-head"><span class="pc-title">本页留言</span><span class="pc-alias"></span></div>'
+    +'<div class="pc-chat" id="pcChat"></div>'
+    +'<form class="pc-form" id="pcForm"><input id="pcInput" maxlength="80" autocomplete="off" placeholder="留一句话，最多 80 字…"><button type="submit" id="pcSend">发送</button></form>';
   return commentPanel;
 }
+function ensureCommentHost(){
+  if(commentHost) return compoundHost();
+  commentHost=document.createElement('div'); commentHost.id='hcbDataHost';
+  commentHost.style.cssText='position:fixed;left:-10000px;top:0;width:2px;height:2px;overflow:hidden;opacity:0;pointer-events:none';
+  commentHost.innerHTML='<div id="HCB_comment_box"></div>';
+  document.body.appendChild(commentHost);
+  function compoundHost(){ return commentHost; }
+  return commentHost;
+}
+function renderChat(){
+  var chat=document.getElementById('pcChat'); if(!chat) return;
+  var arr=(window.comments||[]).filter(function(c){return c && !c.is_reply;});
+  if(!arr.length){ chat.innerHTML='<div class="pc-empty">还没有人说话。写第一句吧。</div>'; return; }
+  var html='';
+  arr.forEach(function(c){
+    var who=escHTML(c.author||'匿名');
+    var msg=escHTML(c.comment||'').replace(/\n/g,' ');
+    var hue=aliasHue(who);
+    html+='<div class="pc-msg"><i class="pc-av" style="--h:'+hue+'">'+escHTML(who.slice(-2))+'</i><div class="pc-bubble"><b>'+who+'</b><p>'+msg+'</p></div></div>';
+  });
+  chat.innerHTML=html;
+  chat.scrollTop=chat.scrollHeight;
+}
+function clearCommentScript(){
+  var old=document.getElementById('hcbScript'); if(old) old.parentNode.removeChild(old);
+  window.comments=[];
+  var host=document.getElementById('HCB_comment_box'); if(host) host.innerHTML='';
+}
+function loadPageComments(p){
+  var chat=document.getElementById('pcChat'); if(!chat) return;
+  commentKey=p.key || ('page'+p.n);
+  var alias=anonAlias();
+  if(commentPanel && commentPanel.querySelector('.pc-alias')) commentPanel.querySelector('.pc-alias').textContent=alias;
+  if(commentCache[commentKey]){ window.comments=commentCache[commentKey]; renderChat(); return; }
+  var token=++commentToken;
+  chat.innerHTML='<div class="pc-empty">正在打开本页留言…</div>';
+  clearCommentScript();
+  ensureCommentHost();
+  var pageUrl='https://dentier-max.github.io/mrdentier/?p='+encodeURIComponent(commentKey);
+  window.hcb_user={PAGE:pageUrl,MAX_CHARS:80,comments_header:'',name_label:'',content_label:'',add:'',submit:'',anonymous:'匿名',no_comments_msg:''};
+  var sc=document.createElement('script'); sc.id='hcbScript';
+  sc.src='https://www.htmlcommentbox.com/jread?page='+encodeURIComponent(pageUrl)+'&opts=16476&num=50&ts='+Date.now();
+  sc.onload=function(){
+    if(token!==commentToken) return;
+    setTimeout(function(){
+      if(token!==commentToken) return;
+      var arr=window.comments||[];
+      commentCache[commentKey]=arr;
+      renderChat();
+      var input=document.getElementById('pcInput'); if(input && arr.length===0) input.focus({preventScroll:true});
+    },80);
+  };
+  sc.onerror=function(){ if(token===commentToken) chat.innerHTML='<div class="pc-empty">留言暂时打不开，图片和相册不受影响。</div>'; };
+  document.head.appendChild(sc);
+}
+function postChat(text,pageUrl){
+  if(commentPosting) return;
+  commentPosting=true;
+  var send=document.getElementById('pcSend'); if(send) send.disabled=true;
+  var iframe=document.createElement('iframe'); var name='hcbPost'+Date.now();
+  iframe.name=name; iframe.style.cssText='position:fixed;left:-10000px;width:1px;height:1px;opacity:0';
+  document.body.appendChild(iframe);
+  var form=document.createElement('form');
+  form.action='https://www.htmlcommentbox.com/post'; form.method='POST'; form.target=name;
+  form.enctype='multipart/form-data'; form.style.display='none';
+  var data={page:pageUrl,refer:location.href,opts:'16476',mod:'',replies_to:'',charset:'UTF-8',name:anonAlias(),content:text,ajax:'1'};
+  Object.keys(data).forEach(function(k){var i=document.createElement('input');i.type='hidden';i.name=k;i.value=data[k];form.appendChild(i);});
+  document.body.appendChild(form); form.submit();
+  setTimeout(function(){
+    try{form.remove();}catch(e){}
+    try{iframe.remove();}catch(e){}
+    commentPosting=false; if(send) send.disabled=false;
+    delete commentCache[currentCommentKeySafe()];
+    if(commentKey) delete commentCache[commentKey];
+    loadPageComments(P[idx]);
+  },1800);
+}
+function currentCommentKeySafe(){ return commentKey; }
 function mountComments(){
   if(!commentPanel) makeCommentPanel();
-  if($('bookScreen') && $('bookScreen').hidden){ commentPanel.hidden = true; return; }
-  var right=$('pageR'), left=$('pageL');
-  var target=null;
+  if($('bookScreen') && $('bookScreen').hidden){ commentPanel.hidden=true; return; }
+  var right=$('pageR'),left=$('pageL'),target=null;
   if(right && right.innerHTML.trim() && right.querySelector('.page-in')) target=right;
   else if(left && left.innerHTML.trim() && left.querySelector('.page-in')) target=left;
   if(!target){ commentPanel.hidden=true; return; }
-  var pageIn=target.querySelector('.page-in');
-  var foot=pageIn.querySelector('.foot');
+  var pageIn=target.querySelector('.page-in'), foot=pageIn.querySelector('.foot');
   if(commentPanel.parentNode!==pageIn){ if(foot) pageIn.insertBefore(commentPanel,foot); else pageIn.appendChild(commentPanel); }
   commentPanel.hidden=false;
   var p=P[idx]; if(!p) return;
   if(commentKey!==p.key) loadPageComments(p);
 }
-function wireCommentAlias(){
-  var alias=anonAlias();
-  if(commentPanel && commentPanel.querySelector('.pc-alias')) commentPanel.querySelector('.pc-alias').textContent=alias;
-  var n=document.getElementById('hcb_form_name'); if(n){ if(n.value!==alias) n.value=alias; n.readOnly=true; }
-  var c=document.getElementById('hcb_form_name_container'); if(c) c.style.display='block';
-  var t=document.getElementById('hcb_form_content'); if(t){ t.setAttribute('maxlength','80'); t.setAttribute('placeholder','留一句话，最多 80 字…'); t.style.height='26px'; t.style.minHeight='26px'; }
-  var f=document.getElementById('hcb_file'); if(f) f.style.display='none';
-  var fl=document.getElementById('hcb_file_label'); if(fl) fl.style.display='none';
-}
-function loadPageComments(p){
-  var body=document.getElementById('pageCommentsBody'); if(!body) return;
-  commentKey=p.key || ('page'+p.n);
-  var token=++commentToken;
-  var alias=anonAlias();
-  if(commentPanel && commentPanel.querySelector('.pc-alias')) commentPanel.querySelector('.pc-alias').textContent=alias;
-  body.innerHTML='<div class="pc-skeleton"><i></i><i></i><i></i><span>正在打开本页留言…</span></div>';
-  var old=document.getElementById('hcbScript'); if(old) old.parentNode.removeChild(old);
-  if(window.__hcbObs){ try{ window.__hcbObs.disconnect(); }catch(e){} }
-  var pageUrl='https://dentier-max.github.io/mrdentier/?p='+encodeURIComponent(commentKey);
-  setTimeout(function(){
-    if(token!==commentToken) return;
-    window.hcb_user={
-      PAGE: pageUrl,
-      MAX_CHARS: 80,
-      comments_header:'', name_label:'匿名编号',
-      content_label:'', add:'', again:'再写一条',
-      submit:'留下', no_comments_msg:'还没有人留言，写第一句吧。',
-      anonymous:'匿名'
-    };
-    body.innerHTML='<div id="HCB_comment_box"></div>';
-    window.__hcbObs=new MutationObserver(wireCommentAlias);
-    window.__hcbObs.observe(body,{childList:true,subtree:true});
-    var sc=document.createElement('script'); sc.id='hcbScript';
-    sc.src='https://www.htmlcommentbox.com/jread?page='+encodeURIComponent(pageUrl)+'&opts=16476&num=30&ts='+Date.now();
-    sc.onerror=function(){ if(token===commentToken) body.innerHTML='<div class="pc-error">留言暂时打不开，图片和相册不受影响。</div>'; };
-    document.head.appendChild(sc);
-    setTimeout(wireCommentAlias,300); setTimeout(wireCommentAlias,1000); setTimeout(wireCommentAlias,2200);
-  }, 650);
-}
 function setupComments(){
-  makeCommentPanel();
-  document.body.appendChild(commentPanel);
+  makeCommentPanel(); document.body.appendChild(commentPanel);
+  var form=document.getElementById('pcForm');
+  if(form) form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var input=document.getElementById('pcInput'); var text=(input.value||'').trim();
+    if(!text) return;
+    if(commentPosting) return;
+    var p=P[idx]; if(!p) return;
+    var pageUrl='https://dentier-max.github.io/mrdentier/?p='+encodeURIComponent(p.key);
+    input.value=''; postChat(text,pageUrl);
+  });
   mountComments();
 }
 setupAddPhotos();
